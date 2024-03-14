@@ -1,38 +1,63 @@
-// Команда запуска через комндную строку: go run head.go -- head.go
 package main
 
 import (
-	"bufio"
 	"flag"
+
 	"fmt"
-	"io"
+
 	"os"
 )
 
 func main() {
-	var count int
-	flag.IntVar(&count, "n", 5, "number of lines to read from the file")
-	flag.Parse()
-	var in io.Reader
-	if filename := flag.Arg(0); filename != "" {
-		f, err := os.Open(filename)
-		if err != nil {
-			fmt.Println("error opening file: err:", err)
-			os.Exit(1)
-		}
-		defer f.Close()
-		in = f
-	} else {
-		in = os.Stdin
+
+	subOne := flag.NewFlagSet("one", flag.ExitOnError)
+
+	oneCream := subOne.Bool("cream", false, "Cream")
+
+	oneSugar := subOne.String("sugar", "", "Sugar")
+
+	subTwo := flag.NewFlagSet("two", flag.ExitOnError)
+
+	twoTea := subTwo.Int("tea", 0, "Tea")
+
+	if len(os.Args) < 2 {
+
+		fmt.Println("expected 'one' or 'two' subcommands")
+
+		os.Exit(1)
+
 	}
-	buf := bufio.NewScanner(in)
-	for i := 0; i < count; i++ {
-		if !buf.Scan() {
-			break
-		}
-		fmt.Println(buf.Text())
+
+	switch os.Args[1] {
+
+	case "one":
+
+		subOne.Parse(os.Args[2:])
+
+		fmt.Println("subcommand 'one'")
+
+		fmt.Println("  Cream:", *oneCream)
+
+		fmt.Println("  Sugar:", *oneSugar)
+
+		fmt.Println("  tail:", subOne.Args())
+
+	case "two":
+
+		subTwo.Parse(os.Args[2:])
+
+		fmt.Println("subcommand 'two'")
+
+		fmt.Println("  tea:", *twoTea)
+
+		fmt.Println("  tail:", subTwo.Args())
+
+	default:
+
+		fmt.Println("expected 'one' or 'two' subcommands")
+
+		os.Exit(1)
+
 	}
-	if err := buf.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "error reading: err:", err)
-	}
+
 }
