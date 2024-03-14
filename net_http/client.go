@@ -31,6 +31,8 @@ func main() {
 	req.Parse(os.Args[2:])
 	fmt.Println("Host:", *host)
 
+	fmt.Printf("\n")
+
 	switch req.Arg(0) {
 
 	case "list":
@@ -40,8 +42,6 @@ func main() {
 	case "create":
 		creates := flag.NewFlagSet("create", flag.ExitOnError)
 		nameCreate := creates.String("name", "New Item", "Name")
-
-		fmt.Println(creates.Parse(req.Args()))
 
 		creates.Parse(req.Args()[1:])
 
@@ -73,39 +73,6 @@ func main() {
 		fmt.Println("You flag is not correct:")
 		os.Exit(1)
 	}
-
-	/*
-		list := flag.NewFlagSet("req.Args()", flag.ExitOnError)
-		nameList := list.String("name", "New Item", "Name")
-
-		fmt.Printf("\n")
-
-		fmt.Println("POST request:")
-		newItem := Item{Name: *nameList}
-		createItem(newItem)
-
-		fmt.Println(list.Args())
-
-	*/
-
-	/*
-		// Пример запроса GET
-		getItems()
-
-		// Пример запроса POST
-		newItem := Item{Name: "New Item"}
-		createItem(newItem)
-
-		fmt.Printf("\n\n\n")
-
-		// Пример запроса POST
-		newItem_2 := Item{Name: "New Item_2"}
-		createItem(newItem_2)
-
-		// Пример запроса GET
-		getItems()
-	*/
-
 }
 
 // getItems отправляет GET-запрос на сервер для получения списка элементов.
