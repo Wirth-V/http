@@ -36,8 +36,14 @@ func main() {
 	switch req.Arg(0) {
 
 	case "list":
+		list := flag.NewFlagSet("list", flag.ExitOnError)
+		nameList := list.String("id", "", "ID")
+
+		list.Parse(req.Args()[1:])
+
+		fmt.Println(*nameList)
 		fmt.Println("GET request:")
-		getItems()
+		getItems(*nameList, *host)
 
 	case "create":
 		creates := flag.NewFlagSet("create", flag.ExitOnError)
@@ -48,7 +54,7 @@ func main() {
 		fmt.Println("POST request:")
 		fmt.Println(*nameCreate)
 		newItem := Item{Name: *nameCreate}
-		createItem(newItem)
+		createItem(newItem, *host)
 
 	case "update":
 		update := flag.NewFlagSet("update", flag.ExitOnError)
@@ -58,7 +64,7 @@ func main() {
 		update.Parse(req.Args()[1:])
 
 		fmt.Println("PUT request:")
-		updateItem(*idName, Item{Name: *nameUpdate})
+		updateItem(*idName, Item{Name: *nameUpdate}, *host)
 
 	case "delete":
 		delete := flag.NewFlagSet("delete", flag.ExitOnError)
@@ -67,7 +73,7 @@ func main() {
 		delete.Parse(req.Args()[1:])
 
 		fmt.Println("DELETE request:")
-		deleteItem(*idDelete)
+		deleteItem(*idDelete, *host)
 
 	default:
 		fmt.Println("You flag is not correct:")
@@ -76,9 +82,16 @@ func main() {
 }
 
 // getItems отправляет GET-запрос на сервер для получения списка элементов.
-func getItems() {
+func getItems(nameList string, host string) {
+	var control string = ""
+	var resp *http.Response
+	var err error
 	// Отправка GET-запроса на сервер по указанному URL.
-	resp, err := http.Get("http://localhost:8080/items/")
+	if nameList == control {
+		resp, err = http.Get(fmt.Sprintf("http://%s/items/", host))
+	} else {
+		resp, err = http.Get(fmt.Sprintf("http://%s/items/%s", host, nameList))
+	}
 	if err != nil {
 		fmt.Println("Ошибка при отправке GET-запроса:", err)
 		return
@@ -100,7 +113,7 @@ func getItems() {
 }
 
 // createItem отправляет POST-запрос на сервер для создания нового элемента.
-func createItem(item Item) {
+func createItem(item Item, host string) {
 	// Кодирование структуры Item в JSON.
 	itemJSON, err := json.Marshal(item)
 	if err != nil {
@@ -109,7 +122,7 @@ func createItem(item Item) {
 	}
 
 	// Отправка POST-запроса на сервер с данными в формате JSON.
-	resp, err := http.Post("http://localhost:8080/items/", "application/json", strings.NewReader(string(itemJSON)))
+	resp, err := http.Post(fmt.Sprintf("http://%s/items/", host), "application/json", strings.NewReader(string(itemJSON)))
 	if err != nil {
 		fmt.Println("Ошибка при отправке POST-запроса:", err)
 		return
@@ -131,7 +144,7 @@ func createItem(item Item) {
 }
 
 // updateItem отправляет PUT-запрос на сервер для обновления элемента с указанным ID.
-func updateItem(itemID string, updatedItem Item) {
+func updateItem(itemID string, updatedItem Item, host string) {
 	// Кодирование обновленной структуры Item в JSON.
 	itemJSON, err := json.Marshal(updatedItem)
 	if err != nil {
@@ -142,7 +155,7 @@ func updateItem(itemID string, updatedItem Item) {
 	// Создание клиента для отправки PUT-запроса.
 	client := &http.Client{}
 	req, err := http.NewRequest(
-		"PUT", fmt.Sprintf("http://localhost:8080/items/%s", itemID), strings.NewReader(string(itemJSON)))
+		"PUT", fmt.Sprintf("http://%s/items/%s", host, itemID), strings.NewReader(string(itemJSON)))
 	if err != nil {
 		fmt.Println("Ошибка при создании PUT-запроса:", err)
 		return
@@ -172,10 +185,10 @@ func updateItem(itemID string, updatedItem Item) {
 }
 
 // deleteItem отправляет DELETE-запрос на сервер для удаления элемента с указанным ID.
-func deleteItem(itemID string) {
+func deleteItem(itemID string, host string) {
 	// Создание клиента для отправки DELETE-запроса.
 	client := &http.Client{}
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://localhost:8080/items/%s", itemID), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://%s/items/%s", host, itemID), nil)
 	if err != nil {
 		fmt.Println("Ошибка при создании DELETE-запроса:", err)
 		return
