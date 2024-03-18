@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// Item представляет структуру элемента с двумя полями: ID и Name.
+// Item представляет структуру данных для элементов списка.
 type Item struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -83,11 +83,11 @@ func main() {
 
 // getItems отправляет GET-запрос на сервер для получения списка элементов.
 func getItems(nameList string, host string) {
-	var control string = ""
+	//var control string = ""
 	var resp *http.Response
 	var err error
 	// Отправка GET-запроса на сервер по указанному URL.
-	if nameList == control {
+	if nameList == "" {
 		resp, err = http.Get(fmt.Sprintf("http://%s/items/", host))
 	} else {
 		resp, err = http.Get(fmt.Sprintf("http://%s/items/%s", host, nameList))
