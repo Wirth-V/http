@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -30,6 +31,7 @@ func main() {
 
 	req.Parse(os.Args[2:])
 	fmt.Println("Host:", *host)
+	fmt.Println("Host:", sanitizeHost(*host))
 
 	fmt.Printf("\n")
 
@@ -42,8 +44,9 @@ func main() {
 		list.Parse(req.Args()[1:])
 
 		fmt.Println(*nameList)
+		fmt.Println(sanitizeInput(*nameList))
 		fmt.Println("GET request:")
-		getItems(*nameList, *host)
+		getItems(sanitizeInput(*nameList), sanitizeHost(*host))
 
 	case "create":
 		creates := flag.NewFlagSet("create", flag.ExitOnError)
@@ -53,8 +56,8 @@ func main() {
 
 		fmt.Println("POST request:")
 		fmt.Println(*nameCreate)
-		newItem := Item{Name: *nameCreate}
-		createItem(newItem, *host)
+		newItem := Item{Name: sanitizeInput(*nameCreate)}
+		createItem(newItem, sanitizeHost(*host))
 
 	case "update":
 		update := flag.NewFlagSet("update", flag.ExitOnError)
@@ -64,7 +67,7 @@ func main() {
 		update.Parse(req.Args()[1:])
 
 		fmt.Println("PUT request:")
-		updateItem(*idName, Item{Name: *nameUpdate}, *host)
+		updateItem(sanitizeInput(*idName), Item{Name: sanitizeInput(*nameUpdate)}, sanitizeHost(*host))
 
 	case "delete":
 		delete := flag.NewFlagSet("delete", flag.ExitOnError)
@@ -73,7 +76,7 @@ func main() {
 		delete.Parse(req.Args()[1:])
 
 		fmt.Println("DELETE request:")
-		deleteItem(*idDelete, *host)
+		deleteItem(sanitizeInput(*idDelete), sanitizeHost(*host))
 
 	default:
 		fmt.Println("You flag is not correct:")
@@ -231,4 +234,23 @@ func printResponse(resp *http.Response) {
 	//fmt.Printf("Response Body: %s\n", bodyBytes) Переделай, или через readAll или через цыкл, так же разбери потоки
 	fmt.Printf("---------------\n\n")
 
+}
+
+//ниже реализованы 2 подхода к экранированию строк, через пакет regexp и через работу со строками
+
+// sanitizeInput очищает строку от специальных символов
+func sanitizeHost(input string) string {
+	var result strings.Builder
+	for _, char := range input {
+		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') || (char == ':') {
+			result.WriteRune(char)
+		}
+	}
+	return result.String()
+}
+
+// sanitizeInput очищает строку от специальных символов
+func sanitizeInput(input string) string {
+	reg := regexp.MustCompile("[^a-zA-Z0-9]+")
+	return reg.ReplaceAllString(input, "")
 }
