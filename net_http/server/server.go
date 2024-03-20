@@ -1,3 +1,38 @@
+/*
+1. Придумать название для консольного приложения;
+2. Приложение должно:
+2.1. По команде {название_приложения} start [--port {port_number}] поднимать web-сервер доступный по адресу http://localhost:{8080 или port_number}.
+Web-cервер будет хранить список структур
+type Item struct {
+  ID string
+  Name string
+}
+
+Сервер должен обрабатывать следующие запросы:
++--------------------------+--------------------------------------------------------+---------------------+-----------------------------+
+| URL                      | Описание                                               | json-формат запроса | json-формат ответа          |
++==========================+========================================================+=====================+=============================+
+| GET /items/              | возвращает список item'ов                              | -                   | [{"id":"", "name":""}, ...] |
+| GET /items/{item_id}/    | возвращает item у которого ID == item_id               | -                   | {"id":"", "name":""}        |
+| POST /items/             | добавляет item со уникальным ID и переданным названием | {"name":"..."}      | {"id":"", "name":""}        |
+| PUT /items/{item_id}/    | изменяет название item'а с соответствующим ID          | {"name":"..."}      | - или {"id":"", "name":""}  |
+| DELETE /items/{item_id}/ | удаляет item                                           | -                   | -                           |
++--------------------------+--------------------------------------------------------+---------------------+-----------------------------+
+
+Все запросы принимающие {item_id} должны возвращать NotFound (404) если item'а с таким id не существует.
+Название (name) не может быть пустым. Если пустое - BadRequest (400)
+Если всё хорошо OK (200). Можно также присылать Created (201) или NoContent (204) в определённых случаях
+
+2.2. По команде {название_приложения} request [--port {port_number}] {вложенная_команда} выполнять запросы в зависимости от вложенной команды:
+  - list - выполняет запрос GET /items/;
+  - get {id} - выполняет GET /items/{id};
+  - create --name {название} - выполняет POST /items/;
+  - update --name {название} {id} - PUT /items/{id};
+  - delete {id} - DELETE /items/{id};
+
+Результаты вызовов напечатать в вывод команд.
+*/
+
 package main
 
 import (
@@ -7,6 +42,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 /*
@@ -20,14 +56,28 @@ type Item struct {
 // items - глобальная переменная, представляющая соотношение элементов по их уникальным ID.
 var items = make(map[string]*moduls.Item)
 
+// Используйте log.New() для создания логгера для записи информационных сообщений. Для этого нужно
+// три параметра: место назначения для записи логов (os.Stdout), строка
+// с префиксом сообщения (INFO или ERROR) и флаги, указывающие, какая
+// дополнительная информация будет добавлена. Обратите внимание, что флаги
+// соединяются с помощью оператора OR |.
+var infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+
+// Создаем логгер для записи сообщений об ошибках таким же образом, но используем stderr как
+// место для записи и используем флаг log.Lshortfile для включения в лог
+// названия файла и номера строки где обнаружилась ошибка.
+var errorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
 func main() {
+
+	infoLog.Println("Сервер запущен.")
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("/items/", handleRequest)
 
 	// Запуск веб-сервера на порту 8080.
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		log.Fatal("Ошибка запуска сервера:", err)
+		errorLog.Fatal("Ошибка запуска сервера:", err)
 	}
 }
 
@@ -37,14 +87,19 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		handleGET(w, r)
+		infoLog.Println("Получен GET-запрос")
 	case http.MethodPost:
 		handlePOST(w, r)
+		infoLog.Println("Получен POST-запрос")
 	case http.MethodPut:
 		handlePUT(w, r)
+		infoLog.Println("Получен PUT-запрос")
 	case http.MethodDelete:
 		handleDELETE(w, r)
+		infoLog.Println("Получен DELETE-запрос")
 	default:
 		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
+		errorLog.Println("Получен не поддерживаемый тип запроса")
 	}
 }
 
@@ -152,7 +207,7 @@ func sendJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	err := json.NewEncoder(w).Encode(data)
 	if err != nil {
 		// Если произошла ошибка при кодировании JSON, возвращаем ошибку
-		log.Println("Ошибка при кодировании JSON:", err)
+		errorLog.Println("Ошибка при кодировании JSON:", err)
 		http.Error(w, "Ошибка при кодировании JSON", http.StatusInternalServerError)
 		return
 	}
