@@ -68,11 +68,16 @@ var infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 // названия файла и номера строки где обнаружилась ошибка.
 var errorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+func handleRedirect(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, " http://localhost:8080/items/", http.StatusPermanentRedirect)
+}
+
 func main() {
 
 	infoLog.Println("Сервер запущен.")
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("/items/", handleRequest)
+	http.HandleFunc("/items", handleRedirect)
 
 	// Запуск веб-сервера на порту 8080.
 	err := http.ListenAndServe(":8080", nil)
