@@ -39,10 +39,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"http/net_http/moduls"
 	"io"
 	"log"
 	"net/http"
+	"net_http/moduls"
 	"os"
 	"regexp"
 	"strings"
@@ -280,7 +280,7 @@ func printResponse(resp *http.Response) {
 func sanitizeHost(input string) string {
 	var result strings.Builder
 	for _, char := range input {
-		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') || (char == ':') {
+		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') || (char == ':') || (char == '_') {
 			result.WriteRune(char)
 		}
 	}

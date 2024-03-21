@@ -38,10 +38,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"http/net_http/moduls"
 	"io"
 	"log"
 	"net/http"
+	"net_http/moduls"
 	"os"
 )
 
@@ -77,6 +77,7 @@ func main() {
 	infoLog.Println("Сервер запущен.")
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("/items/", handleRequest)
+	//Редирект при "/items"
 	http.HandleFunc("/items", handleRedirect)
 
 	// Запуск веб-сервера на порту 8080.
@@ -118,6 +119,7 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Если в пути обращения GET - "/items/{item_id}/", возвращаем соответствующий элемент.
 		itemID := r.URL.Path[len("/items/"):]
+
 		if item, ok := items[itemID]; ok {
 			sendJSONResponse(w, http.StatusOK, item)
 		} else {
