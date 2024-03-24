@@ -68,17 +68,23 @@ var infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 // названия файла и номера строки где обнаружилась ошибка.
 var errorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-func handleRedirect(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, " http://localhost:8080/items/", http.StatusPermanentRedirect)
-}
-
 func main() {
 
 	infoLog.Println("Сервер запущен.")
 	// Регистрация обработчика запросов для пути "/items/".
-	http.HandleFunc("/items/", handleRequest)
-	//Редирект при "/items"
-	http.HandleFunc("/items", handleRedirect)
+	http.HandleFunc("GET /items/", handleGET)
+
+	// Регистрация обработчика запросов для пути "/items/".
+	http.HandleFunc("GET /items/{id}/", handleGET)
+
+	// Регистрация обработчика запросов для пути "/items/".
+	http.HandleFunc("POST /items/", handlePOST)
+
+	// Регистрация обработчика запросов для пути "/items/".
+	http.HandleFunc("PUT /items/{id}/", handlePUT)
+
+	// Регистрация обработчика запросов для пути "/items/".
+	http.HandleFunc("DELETE /items/{id}/", handleDELETE)
 
 	// Запуск веб-сервера на порту 8080.
 	err := http.ListenAndServe(":8080", nil)
@@ -87,39 +93,18 @@ func main() {
 	}
 }
 
-// handleRequest - обработчик входящих HTTP-запросов.
-func handleRequest(w http.ResponseWriter, r *http.Request) {
-	// Обработка запроса в зависимости от метода HTTP.
-	switch r.Method {
-	case http.MethodGet:
-		handleGET(w, r)
-		infoLog.Println("Получен GET-запрос")
-	case http.MethodPost:
-		handlePOST(w, r)
-		infoLog.Println("Получен POST-запрос")
-	case http.MethodPut:
-		handlePUT(w, r)
-		infoLog.Println("Получен PUT-запрос")
-	case http.MethodDelete:
-		handleDELETE(w, r)
-		infoLog.Println("Получен DELETE-запрос")
-	default:
-		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
-		errorLog.Println("Получен не поддерживаемый тип запроса")
-	}
-}
-
 // handleGET - обработчик для HTTP-запросов методом GET.
 func handleGET(w http.ResponseWriter, r *http.Request) {
-
+	//r.PathValue("id")
 	// Обработка запроса в зависимости от типа переданного URL.
-	if r.URL.Path == "/items/" {
+	infoLog.Println("Получен GET-запрос")
+
+	if r.PathValue("id") == "" {
 		// Если в пути обращения GET - "/items/" , возвращаем список всех элементов.
 		sendJSONResponse(w, http.StatusOK, items)
 	} else {
 		// Если в пути обращения GET - "/items/{item_id}/", возвращаем соответствующий элемент.
-		itemID := r.URL.Path[len("/items/"):]
-
+		itemID := r.PathValue("id")
 		if item, ok := items[itemID]; ok {
 			sendJSONResponse(w, http.StatusOK, item)
 		} else {
@@ -131,7 +116,7 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 
 // handlePOST - обработчик для HTTP-запросов методом POST.
 func handlePOST(w http.ResponseWriter, r *http.Request) {
-
+	infoLog.Println("Получен POST-запрос")
 	// Декодирование JSON-тела запроса в новый элемент.
 	var newItem moduls.Item
 	err := decodeJSONBody(r.Body, &newItem)
@@ -158,9 +143,9 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 
 // handlePUT - обработчик для HTTP-запросов методом PUT.
 func handlePUT(w http.ResponseWriter, r *http.Request) {
-
+	infoLog.Println("Получен PUT-запрос")
 	// Извлечение ID элемента из URL.
-	itemID := r.URL.Path[len("/items/"):]
+	itemID := r.PathValue("id")
 	if item, ok := items[itemID]; ok {
 		// Если элемент существует, декодирование JSON-тела запроса в обновленный элемент.
 		var updatedItem moduls.Item
@@ -189,9 +174,9 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 
 // handleDELETE - обработчик для HTTP-запросов методом DELETE.
 func handleDELETE(w http.ResponseWriter, r *http.Request) {
-
+	infoLog.Println("Получен DELETE-запрос")
 	// Извлечение ID элемента из URL.
-	itemID := r.URL.Path[len("/items/"):]
+	itemID := r.PathValue("id")
 	if item, ok := items[itemID]; ok {
 		// Если элемент существует, удаление элемента из карты.
 		delete(items, item.ID)
