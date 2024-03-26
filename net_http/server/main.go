@@ -130,6 +130,11 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Недопустимые символы", http.StatusBadRequest)
 		return
 	}
+
+	if moduls.Length(newItem.Name) {
+		http.Error(w, "Недопустимая длинна (более 20 символов)", http.StatusBadRequest)
+		return
+	}
 	// Генерация уникального ID и добавление нового элемента в карту.
 	newItem.ID = GenerateID()
 	items[newItem.ID] = &newItem
@@ -166,6 +171,11 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if moduls.Length(updatedItem.Name) {
+			http.Error(w, "Недопустимая длинна (более 20 символов)", http.StatusBadRequest)
+			return
+		}
+
 		// Обновление имени элемента и отправка JSON-ответа с обновленным элементом.
 		item.Name = updatedItem.Name
 		sendJSONResponse(w, http.StatusOK, item)
@@ -184,6 +194,11 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 
 	if moduls.Sanitize(itemID) {
 		http.Error(w, "Недопустимые символы", http.StatusBadRequest)
+		return
+	}
+
+	if moduls.Length(itemID) {
+		http.Error(w, "Недопустимая длинна (более 20 символов)", http.StatusBadRequest)
 		return
 	}
 
