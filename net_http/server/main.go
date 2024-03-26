@@ -118,8 +118,9 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Проверяет длинну и допустимость вводимых данных
-	moduls.Sanitize(newItem.Name)
-
+	if moduls.Sanitize(newItem.Name) {
+		return
+	}
 	// Генерация уникального ID и добавление нового элемента в карту.
 	newItem.ID = GenerateID()
 	items[newItem.ID] = &newItem
@@ -151,7 +152,9 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//Проверяет длинну и допустимость вводимых данных
-		moduls.Sanitize(updatedItem.Name)
+		if moduls.Sanitize(updatedItem.Name) {
+			return
+		}
 
 		// Обновление имени элемента и отправка JSON-ответа с обновленным элементом.
 		item.Name = updatedItem.Name
@@ -165,8 +168,14 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 // handleDELETE - обработчик для HTTP-запросов методом DELETE.
 func handleDELETE(w http.ResponseWriter, r *http.Request) {
 	moduls.InfoLog.Println("Получен DELETE-запрос")
+
 	// Извлечение ID элемента из URL.
 	itemID := r.PathValue("id")
+
+	if moduls.Sanitize(itemID) {
+		return
+	}
+
 	if item, ok := items[itemID]; ok {
 		// Если элемент существует, удаление элемента из карты.
 		delete(items, item.ID)
