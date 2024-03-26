@@ -222,6 +222,7 @@ func sendJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 
 	// Кодирование данных в формат JSON и отправка в тело ответа.
 	err := json.NewEncoder(w).Encode(data)
+
 	if err != nil {
 		// Если произошла ошибка при кодировании JSON, возвращаем ошибку
 		moduls.ErrorLog.Println("Ошибка при кодировании JSON:", err)
