@@ -37,12 +37,11 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net_http/moduls"
-	"os"
+
+	"github.com/google/uuid"
 )
 
 /*
@@ -56,48 +55,32 @@ type Item struct {
 // items - глобальная переменная, представляющая соотношение элементов по их уникальным ID.
 var items = make(map[string]*moduls.Item)
 
-// Используйте log.New() для создания логгера для записи информационных сообщений. Для этого нужно
-// три параметра: место назначения для записи логов (os.Stdout), строка
-// с префиксом сообщения (INFO или ERROR) и флаги, указывающие, какая
-// дополнительная информация будет добавлена. Обратите внимание, что флаги
-// соединяются с помощью оператора OR |.
-var infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-
-// Создаем логгер для записи сообщений об ошибках таким же образом, но используем stderr как
-// место для записи и используем флаг log.Lshortfile для включения в лог
-// названия файла и номера строки где обнаружилась ошибка.
-var errorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-
 func main() {
 
-	infoLog.Println("Сервер запущен.")
+	moduls.InfoLog.Println("Сервер запущен.")
+
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("GET /items/", handleGET)
-
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("GET /items/{id}/", handleGET)
-
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("POST /items/", handlePOST)
-
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("PUT /items/{id}/", handlePUT)
-
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("DELETE /items/{id}/", handleDELETE)
 
 	// Запуск веб-сервера на порту 8080.
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		errorLog.Fatal("Ошибка запуска сервера:", err)
+		moduls.ErrorLog.Fatal("Ошибка запуска сервера:", err)
 	}
 }
 
 // handleGET - обработчик для HTTP-запросов методом GET.
 func handleGET(w http.ResponseWriter, r *http.Request) {
-	//r.PathValue("id")
 	// Обработка запроса в зависимости от типа переданного URL.
-	infoLog.Println("Получен GET-запрос")
+	moduls.InfoLog.Println("Получен GET-запрос")
 
 	if r.PathValue("id") == "" {
 		// Если в пути обращения GET - "/items/" , возвращаем список всех элементов.
@@ -116,7 +99,8 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 
 // handlePOST - обработчик для HTTP-запросов методом POST.
 func handlePOST(w http.ResponseWriter, r *http.Request) {
-	infoLog.Println("Получен POST-запрос")
+	moduls.InfoLog.Println("Получен POST-запрос")
+
 	// Декодирование JSON-тела запроса в новый элемент.
 	var newItem moduls.Item
 	err := decodeJSONBody(r.Body, &newItem)
@@ -133,8 +117,11 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//Проверяет длинну и допустимость вводимых данных
+	moduls.Sanitize(newItem.Name)
+
 	// Генерация уникального ID и добавление нового элемента в карту.
-	newItem.ID = generateID()
+	newItem.ID = GenerateID()
 	items[newItem.ID] = &newItem
 
 	// Отправка JSON-ответа с созданным элементом и статусом "Created".
@@ -143,7 +130,7 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 
 // handlePUT - обработчик для HTTP-запросов методом PUT.
 func handlePUT(w http.ResponseWriter, r *http.Request) {
-	infoLog.Println("Получен PUT-запрос")
+	moduls.InfoLog.Println("Получен PUT-запрос")
 	// Извлечение ID элемента из URL.
 	itemID := r.PathValue("id")
 	if item, ok := items[itemID]; ok {
@@ -163,6 +150,9 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		//Проверяет длинну и допустимость вводимых данных
+		moduls.Sanitize(updatedItem.Name)
+
 		// Обновление имени элемента и отправка JSON-ответа с обновленным элементом.
 		item.Name = updatedItem.Name
 		sendJSONResponse(w, http.StatusOK, item)
@@ -174,7 +164,7 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 
 // handleDELETE - обработчик для HTTP-запросов методом DELETE.
 func handleDELETE(w http.ResponseWriter, r *http.Request) {
-	infoLog.Println("Получен DELETE-запрос")
+	moduls.InfoLog.Println("Получен DELETE-запрос")
 	// Извлечение ID элемента из URL.
 	itemID := r.PathValue("id")
 	if item, ok := items[itemID]; ok {
@@ -199,7 +189,7 @@ func sendJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	err := json.NewEncoder(w).Encode(data)
 	if err != nil {
 		// Если произошла ошибка при кодировании JSON, возвращаем ошибку
-		errorLog.Println("Ошибка при кодировании JSON:", err)
+		moduls.ErrorLog.Println("Ошибка при кодировании JSON:", err)
 		http.Error(w, "Ошибка при кодировании JSON", http.StatusInternalServerError)
 		return
 	}
@@ -211,7 +201,7 @@ func decodeJSONBody(body io.Reader, v interface{}) error {
 	return json.NewDecoder(body).Decode(v)
 }
 
-// generateID - генерирует уникальный ID для элемента на основе текущего количества элементов.
-func generateID() string {
-	return fmt.Sprintf("%d", len(items)+1)
+// GenerateID - генерирует уникальный ID для элемента на основе текущего количества элементов.
+func GenerateID() string {
+	return uuid.New().String()[:8]
 }
