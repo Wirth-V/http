@@ -41,6 +41,8 @@ import (
 	"io"
 	"net/http"
 	"net_http/moduls"
+	"os"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -59,7 +61,9 @@ var items = make(map[string]*moduls.Item)
 func main() {
 
 	req := flag.NewFlagSet("start", flag.ExitOnError)
-	host := req.String("port", ":8080", "Port")
+	host := req.String("port", "8080", "Port")
+
+	req.Parse(os.Args[2:])
 
 	moduls.InfoLog.Println("Сервер запущен.")
 
@@ -75,7 +79,7 @@ func main() {
 	http.HandleFunc("DELETE /items/{id}/", handleDELETE)
 
 	// Запуск веб-сервера на порту 8080.
-	err := http.ListenAndServe(*host, nil)
+	err := http.ListenAndServe(strings.Join([]string{":", *host}, ""), nil)
 	if err != nil {
 		moduls.ErrorLog.Fatal("Ошибка запуска сервера:", err)
 	}
