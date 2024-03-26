@@ -37,6 +37,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"io"
 	"net/http"
 	"net_http/moduls"
@@ -57,6 +58,9 @@ var items = make(map[string]*moduls.Item)
 
 func main() {
 
+	req := flag.NewFlagSet("start", flag.ExitOnError)
+	host := req.String("port", ":8080", "Port")
+
 	moduls.InfoLog.Println("Сервер запущен.")
 
 	// Регистрация обработчика запросов для пути "/items/".
@@ -71,7 +75,7 @@ func main() {
 	http.HandleFunc("DELETE /items/{id}/", handleDELETE)
 
 	// Запуск веб-сервера на порту 8080.
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(*host, nil)
 	if err != nil {
 		moduls.ErrorLog.Fatal("Ошибка запуска сервера:", err)
 	}
@@ -119,6 +123,7 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 
 	//Проверяет длинну и допустимость вводимых данных
 	if moduls.Sanitize(newItem.Name) {
+		http.Error(w, "Недопустимые символы", http.StatusBadRequest)
 		return
 	}
 	// Генерация уникального ID и добавление нового элемента в карту.
@@ -153,6 +158,7 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 
 		//Проверяет длинну и допустимость вводимых данных
 		if moduls.Sanitize(updatedItem.Name) {
+			http.Error(w, "Недопустимые символы", http.StatusBadRequest)
 			return
 		}
 
@@ -173,6 +179,7 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 	itemID := r.PathValue("id")
 
 	if moduls.Sanitize(itemID) {
+		http.Error(w, "Недопустимые символы", http.StatusBadRequest)
 		return
 	}
 
