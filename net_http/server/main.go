@@ -38,6 +38,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"net/http"
 	"net_http/moduls"
@@ -92,8 +93,15 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 	// Обработка запроса в зависимости от типа переданного URL.
 	moduls.InfoLog.Println("Получен GET-запрос")
 
+	buf := make(map[string]string)
+
+	for k, m := range items {
+		buf[k] = m.Name
+	}
+
+	fmt.Println(buf)
 	// Если в пути обращения GET - "/items/" , возвращаем список всех элементов.
-	sendJSONResponse(w, http.StatusOK, items)
+	sendJSONResponse(w, http.StatusOK, buf)
 }
 
 // handleGET - обработчик для HTTP-запросов методом GET.
@@ -244,7 +252,7 @@ func decodeJSONBody(body io.Reader, v interface{}) error {
 	return json.NewDecoder(body).Decode(v)
 }
 
-// GenerateID - генерирует уникальный ID для элемента на основе текущего количества элементов.
+// GenerateID - генерирует уникальный ID для элемента
 func GenerateID() string {
 	return uuid.New().String()[:8]
 }

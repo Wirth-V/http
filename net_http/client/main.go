@@ -154,7 +154,6 @@ func main() {
 		}
 
 		fmt.Println("POST request:")
-		fmt.Println(*nameCreate)
 		newItem := moduls.Item{Name: *nameCreate}
 		createItem(newItem, hostPort)
 

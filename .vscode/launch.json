@@ -10,8 +10,8 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "net_http/client/main.go", 
-            "args": ["request", "--host=localhost", "--port=9091", "update"]
+            "program": "net_http/server/main.go", 
+            "args": ["start", "--host=localhost"]
         }
     ]
 }
