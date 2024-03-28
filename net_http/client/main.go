@@ -45,7 +45,6 @@ import (
 	"net/http"
 	"net_http/moduls"
 	"os"
-	"regexp"
 	"strings"
 )
 
@@ -71,10 +70,12 @@ func main() {
 
 	req.Parse(os.Args[2:])
 
-	hostPort := strings.Join([]string{*host, *port}, ":")
+	//Проверяет длинну и допустимость вводимых данных
+	if moduls.Sanitize(*host) && moduls.Length(*host) && moduls.Sanitize(*port) && moduls.Length(*port) {
+		return
+	}
 
-	fmt.Println("Host:", hostPort)
-	fmt.Println("Host:", sanitizeHost(hostPort))
+	hostPort := strings.Join([]string{*host, *port}, ":")
 
 	fmt.Printf("\n")
 
@@ -86,7 +87,7 @@ func main() {
 		list.Parse(req.Args()[1:])
 
 		fmt.Println("GET request:")
-		getItems("", sanitizeHost(hostPort))
+		getItems("", hostPort)
 
 	case "get":
 		list := flag.NewFlagSet("list", flag.ExitOnError)
@@ -115,19 +116,47 @@ func main() {
 
 		}
 
+		if moduls.Sanitize(*nameList) && moduls.Length(*nameList) {
+			return
+		}
+
 		fmt.Println("GET request:")
-		getItems(sanitizeInput(*nameList), sanitizeHost(hostPort))
+		getItems(*nameList, hostPort)
 
 	case "create":
 		creates := flag.NewFlagSet("create", flag.ExitOnError)
-		nameCreate := creates.String("name", "New Item", "Name")
+		nameCreate := creates.String("name", "", "Name")
 
 		creates.Parse(req.Args()[1:])
 
+		if *nameCreate == "" {
+
+			if creates.Args() != nil {
+				if creates.Arg(0) == "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				if creates.Arg(1) != "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				*nameCreate = creates.Arg(0)
+			} else {
+				fmt.Println("You flag is not correct:")
+				os.Exit(1)
+			}
+		}
+
+		if moduls.Sanitize(*nameCreate) && moduls.Length(*nameCreate) {
+			return
+		}
+
 		fmt.Println("POST request:")
 		fmt.Println(*nameCreate)
-		newItem := moduls.Item{Name: sanitizeInput(*nameCreate)}
-		createItem(newItem, sanitizeHost(hostPort))
+		newItem := moduls.Item{Name: *nameCreate}
+		createItem(newItem, hostPort)
 
 	case "update":
 		update := flag.NewFlagSet("update", flag.ExitOnError)
@@ -135,13 +164,6 @@ func main() {
 		idName := update.String("id", "", "Name")
 
 		update.Parse(req.Args()[1:])
-
-		fmt.Println(update.Args())
-
-		fmt.Println(update.Arg(0))
-		fmt.Println(update.Arg(1))
-		fmt.Println(update.Arg(2))
-		fmt.Println(*nameUpdate)
 
 		if *idName == "" {
 
@@ -164,7 +186,9 @@ func main() {
 
 		}
 
-		fmt.Println("IS: " + *nameUpdate)
+		if moduls.Sanitize(*nameUpdate) && moduls.Sanitize(*idName) && moduls.Length(*nameUpdate) && moduls.Length(*idName) {
+			return
+		}
 
 		newUpdat := moduls.Item{ID: *idName, Name: *nameUpdate} //sanitaze
 
@@ -175,12 +199,36 @@ func main() {
 
 	case "delete":
 		delete := flag.NewFlagSet("delete", flag.ExitOnError)
-		idDelete := delete.String("id", "1", "ID of delete")
+		idDelete := delete.String("id", "", "ID of delete")
 
 		delete.Parse(req.Args()[1:])
 
+		if *idDelete == "" {
+
+			if delete.Args() != nil {
+				if delete.Arg(0) == "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				if delete.Arg(1) != "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				*idDelete = delete.Arg(0)
+			} else {
+				fmt.Println("You flag is not correct:")
+				os.Exit(1)
+			}
+		}
+
+		if moduls.Sanitize(*idDelete) && moduls.Length(*idDelete) {
+			return
+		}
+
 		fmt.Println("DELETE request:")
-		deleteItem(sanitizeInput(*idDelete), sanitizeHost(hostPort))
+		deleteItem(*idDelete, hostPort)
 
 	default:
 		fmt.Println("You flag is not correct:")
@@ -294,7 +342,7 @@ func updateItem(itemID string, updatedItem moduls.Item, hostPort string) {
 func deleteItem(itemID string, hostPort string) {
 	// Создание клиента для отправки DELETE-запроса.
 	client := &http.Client{}
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://%s/items/%s", hostPort, itemID), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://%s/items/%s/", hostPort, itemID), nil)
 	if err != nil {
 		fmt.Println("Ошибка при создании DELETE-запроса:", err)
 		return
@@ -337,23 +385,4 @@ func printResponse(resp *http.Response) {
 	//fmt.Printf("Response Body: %s\n", bodyBytes) Переделай, или через readAll или через цыкл, так же разбери потоки
 	fmt.Printf("---------------\n\n")
 
-}
-
-//ниже реализованы 2 подхода к экранированию строк, через пакет regexp и через работу со строками
-
-// sanitizeHost очищает строку Host от специальных символов
-func sanitizeHost(input string) string {
-	var result strings.Builder
-	for _, char := range input {
-		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') || (char == ':') || (char == '_') {
-			result.WriteRune(char)
-		}
-	}
-	return result.String()
-}
-
-// sanitizeInput очищает строку от специальных символов
-func sanitizeInput(input string) string {
-	reg := regexp.MustCompile("[^a-zA-Z0-9]+")
-	return reg.ReplaceAllString(input, "")
 }

@@ -14,7 +14,7 @@ func Sanitize(s string) bool {
 
 func Length(s string) bool {
 	if len(s) >= 21 {
-		ErrorLog.Println("Превышен максимальный размер вхожных данных (не более 8 символов)")
+		ErrorLog.Println("Превышен максимальный размер вхожных данных (не более 20 символов)")
 		return true
 	}
 	return false
