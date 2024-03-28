@@ -65,11 +65,15 @@ func main() {
 	*/
 
 	req := flag.NewFlagSet("request", flag.ExitOnError)
-	host := req.String("host", "localhost:8080", "Host")
+	host := req.String("host", "localhost", "Host")
+	port := req.String("port", "8080", "Host")
 
 	req.Parse(os.Args[2:])
-	fmt.Println("Host:", *host)
-	fmt.Println("Host:", sanitizeHost(*host))
+
+	hostPort := strings.Join([]string{*host, *port}, ":")
+
+	fmt.Println("Host:", hostPort)
+	fmt.Println("Host:", sanitizeHost(hostPort))
 
 	fmt.Printf("\n")
 
@@ -77,14 +81,41 @@ func main() {
 
 	case "list":
 		list := flag.NewFlagSet("list", flag.ExitOnError)
+
+		list.Parse(req.Args()[1:])
+
+		fmt.Println("GET request:")
+		getItems("", sanitizeHost(hostPort))
+
+	case "get":
+		list := flag.NewFlagSet("list", flag.ExitOnError)
 		nameList := list.String("id", "", "ID")
 
 		list.Parse(req.Args()[1:])
 
-		fmt.Println(*nameList)
-		fmt.Println(sanitizeInput(*nameList))
+		if *nameList == "" {
+
+			if list.Args() != nil {
+				if list.Arg(0) == "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				if list.Arg(1) != "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				*nameList = list.Arg(0)
+			} else {
+				fmt.Println("You flag is not correct:")
+				os.Exit(1)
+			}
+
+		}
+
 		fmt.Println("GET request:")
-		getItems(sanitizeInput(*nameList), sanitizeHost(*host))
+		getItems(sanitizeInput(*nameList), sanitizeHost(hostPort))
 
 	case "create":
 		creates := flag.NewFlagSet("create", flag.ExitOnError)
@@ -95,17 +126,51 @@ func main() {
 		fmt.Println("POST request:")
 		fmt.Println(*nameCreate)
 		newItem := moduls.Item{Name: sanitizeInput(*nameCreate)}
-		createItem(newItem, sanitizeHost(*host))
+		createItem(newItem, sanitizeHost(hostPort))
 
 	case "update":
 		update := flag.NewFlagSet("update", flag.ExitOnError)
-		idName := update.String("id", "1", "Name")
 		nameUpdate := update.String("name", "New Item", "Name")
+		idName := update.String("id", "", "Name")
 
 		update.Parse(req.Args()[1:])
 
+		fmt.Println(update.Args())
+
+		fmt.Println(update.Arg(0))
+		fmt.Println(update.Arg(1))
+		fmt.Println(update.Arg(2))
+		fmt.Println(*nameUpdate)
+
+		if *idName == "" {
+
+			if update.Args() != nil {
+				if update.Arg(0) == "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				if update.Arg(1) != "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				*idName = update.Arg(0)
+			} else {
+				fmt.Println("You flag is not correct:")
+				os.Exit(1)
+			}
+
+		}
+
+		fmt.Println("IS: " + *nameUpdate)
+
+		newUpdat := moduls.Item{Name: *nameUpdate} //sanitaze
+
+		fmt.Println(newUpdat)
+
 		fmt.Println("PUT request:")
-		updateItem(sanitizeInput(*idName), moduls.Item{Name: sanitizeInput(*nameUpdate)}, sanitizeHost(*host))
+		updateItem(*idName, newUpdat, hostPort)
 
 	case "delete":
 		delete := flag.NewFlagSet("delete", flag.ExitOnError)
@@ -114,7 +179,7 @@ func main() {
 		delete.Parse(req.Args()[1:])
 
 		fmt.Println("DELETE request:")
-		deleteItem(sanitizeInput(*idDelete), sanitizeHost(*host))
+		deleteItem(sanitizeInput(*idDelete), sanitizeHost(hostPort))
 
 	default:
 		fmt.Println("You flag is not correct:")
@@ -123,15 +188,15 @@ func main() {
 }
 
 // getItems отправляет GET-запрос на сервер для получения списка элементов.
-func getItems(nameList string, host string) {
+func getItems(nameList string, hostPort string) {
 	//var control string = ""
 	var resp *http.Response
 	var err error
 	// Отправка GET-запроса на сервер по указанному URL.
 	if nameList == "" {
-		resp, err = http.Get(fmt.Sprintf("http://%s/items/", host))
+		resp, err = http.Get(fmt.Sprintf("http://%s/items/", hostPort))
 	} else {
-		resp, err = http.Get(fmt.Sprintf("http://%s/items/%s", host, nameList))
+		resp, err = http.Get(fmt.Sprintf("http://%s/items/%s", hostPort, nameList))
 	}
 	if err != nil {
 		fmt.Println("Ошибка при отправке GET-запроса:", err)
@@ -154,7 +219,7 @@ func getItems(nameList string, host string) {
 }
 
 // createItem отправляет POST-запрос на сервер для создания нового элемента.
-func createItem(item moduls.Item, host string) {
+func createItem(item moduls.Item, hostPort string) {
 	// Кодирование структуры Item в JSON.
 	itemJSON, err := json.Marshal(item)
 	if err != nil {
@@ -163,7 +228,7 @@ func createItem(item moduls.Item, host string) {
 	}
 
 	// Отправка POST-запроса на сервер с данными в формате JSON.
-	resp, err := http.Post(fmt.Sprintf("http://%s/items/", host), "application/json", strings.NewReader(string(itemJSON)))
+	resp, err := http.Post(fmt.Sprintf("http://%s/items/", hostPort), "application/json", strings.NewReader(string(itemJSON)))
 	if err != nil {
 		fmt.Println("Ошибка при отправке POST-запроса:", err)
 		return
@@ -185,7 +250,7 @@ func createItem(item moduls.Item, host string) {
 }
 
 // updateItem отправляет PUT-запрос на сервер для обновления элемента с указанным ID.
-func updateItem(itemID string, updatedItem moduls.Item, host string) {
+func updateItem(itemID string, updatedItem moduls.Item, hostPort string) {
 	// Кодирование обновленной структуры Item в JSON.
 	itemJSON, err := json.Marshal(updatedItem)
 	if err != nil {
@@ -193,10 +258,9 @@ func updateItem(itemID string, updatedItem moduls.Item, host string) {
 		return
 	}
 
-	// Создание клиента для отправки PUT-запроса.
+	// Создание клиента для отправки PUT-запроса. bytes.NewBuffer(itemJSON)
 	client := &http.Client{}
-	req, err := http.NewRequest(
-		"PUT", fmt.Sprintf("http://%s/items/%s", host, itemID), strings.NewReader(string(itemJSON)))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("http://%s/items/%s", hostPort, itemID), strings.NewReader(string(itemJSON)))
 	if err != nil {
 		fmt.Println("Ошибка при создании PUT-запроса:", err)
 		return
@@ -226,10 +290,10 @@ func updateItem(itemID string, updatedItem moduls.Item, host string) {
 }
 
 // deleteItem отправляет DELETE-запрос на сервер для удаления элемента с указанным ID.
-func deleteItem(itemID string, host string) {
+func deleteItem(itemID string, hostPort string) {
 	// Создание клиента для отправки DELETE-запроса.
 	client := &http.Client{}
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://%s/items/%s", host, itemID), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://%s/items/%s", hostPort, itemID), nil)
 	if err != nil {
 		fmt.Println("Ошибка при создании DELETE-запроса:", err)
 		return

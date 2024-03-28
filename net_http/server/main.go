@@ -61,16 +61,18 @@ var items = make(map[string]*moduls.Item)
 func main() {
 
 	req := flag.NewFlagSet("start", flag.ExitOnError)
-	host := req.String("port", "8080", "Port")
+	host := req.String("host", "localhost", "Port")
+	port := req.String("port", "8080", "Port")
 
 	req.Parse(os.Args[2:])
 
 	moduls.InfoLog.Println("Сервер запущен.")
+	moduls.InfoLog.Printf("Хост:%s Порт:%s", *host, *port)
 
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("GET /items/", handleGET)
 	// Регистрация обработчика запросов для пути "/items/".
-	http.HandleFunc("GET /items/{id}/", handleGET)
+	http.HandleFunc("GET /items/{id}/", handleGETid)
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("POST /items/", handlePOST)
 	// Регистрация обработчика запросов для пути "/items/".
@@ -79,7 +81,7 @@ func main() {
 	http.HandleFunc("DELETE /items/{id}/", handleDELETE)
 
 	// Запуск веб-сервера на порту 8080.
-	err := http.ListenAndServe(strings.Join([]string{":", *host}, ""), nil)
+	err := http.ListenAndServe(strings.Join([]string{*host, *port}, ":"), nil)
 	if err != nil {
 		moduls.ErrorLog.Fatal("Ошибка запуска сервера:", err)
 	}
@@ -90,18 +92,23 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 	// Обработка запроса в зависимости от типа переданного URL.
 	moduls.InfoLog.Println("Получен GET-запрос")
 
-	if r.PathValue("id") == "" {
-		// Если в пути обращения GET - "/items/" , возвращаем список всех элементов.
-		sendJSONResponse(w, http.StatusOK, items)
+	// Если в пути обращения GET - "/items/" , возвращаем список всех элементов.
+	sendJSONResponse(w, http.StatusOK, items)
+}
+
+// handleGET - обработчик для HTTP-запросов методом GET.
+func handleGETid(w http.ResponseWriter, r *http.Request) {
+	// Обработка запроса в зависимости от типа переданного URL.
+	moduls.InfoLog.Println("Получен GET-запрос")
+
+	// Если в пути обращения GET - "/items/{item_id}/", возвращаем соответствующий элемент.
+	itemID := r.PathValue("id")
+
+	if item, ok := items[itemID]; ok {
+		sendJSONResponse(w, http.StatusOK, item)
 	} else {
-		// Если в пути обращения GET - "/items/{item_id}/", возвращаем соответствующий элемент.
-		itemID := r.PathValue("id")
-		if item, ok := items[itemID]; ok {
-			sendJSONResponse(w, http.StatusOK, item)
-		} else {
-			// Если элемент с указанным ID не существует, возвращаем ошибку "Not Found".
-			http.NotFound(w, r)
-		}
+		// Если элемент с указанным ID не существует, возвращаем ошибку "Not Found".
+		http.NotFound(w, r)
 	}
 }
 
