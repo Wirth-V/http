@@ -43,19 +43,25 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net_http/moduls"
 	"os"
 	"regexp"
 	"strings"
 )
 
-/*
 // Item представляет структуру данных для элементов списка.
 type Item struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
-*/
+
+// с префиксом сообщения (INFO или ERROR) и флаги, указывающие, какая
+// дополнительная информация будет добавлена.
+var InfoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+
+// Создаем логгер для записи сообщений об ошибках таким же образом, но используем stderr как
+// место для записи и используем флаг log.Lshortfile для включения в лог
+// названия файла и номера строки где обнаружилась ошибка.
+var ErrorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 func main() {
 
@@ -126,7 +132,7 @@ func main() {
 
 		fmt.Println("POST request:")
 		fmt.Println(*nameCreate)
-		newItem := moduls.Item{Name: sanitizeInput(*nameCreate)}
+		newItem := Item{Name: sanitizeInput(*nameCreate)}
 		createItem(newItem, sanitizeHost(hostPort))
 
 	case "update":
@@ -166,7 +172,7 @@ func main() {
 
 		fmt.Println("IS: " + *nameUpdate)
 
-		newUpdat := moduls.Item{ID: *idName, Name: *nameUpdate} //sanitaze
+		newUpdat := Item{Name: *nameUpdate} //sanitaze
 
 		fmt.Println(newUpdat)
 
@@ -197,7 +203,7 @@ func getItems(nameList string, hostPort string) {
 	if nameList == "" {
 		resp, err = http.Get(fmt.Sprintf("http://%s/items/", hostPort))
 	} else {
-		resp, err = http.Get(fmt.Sprintf("http://%s/items/%s/", hostPort, nameList))
+		resp, err = http.Get(fmt.Sprintf("http://%s/items/%s", hostPort, nameList))
 	}
 	if err != nil {
 		fmt.Println("Ошибка при отправке GET-запроса:", err)
@@ -220,7 +226,7 @@ func getItems(nameList string, hostPort string) {
 }
 
 // createItem отправляет POST-запрос на сервер для создания нового элемента.
-func createItem(item moduls.Item, hostPort string) {
+func createItem(item Item, hostPort string) {
 	// Кодирование структуры Item в JSON.
 	itemJSON, err := json.Marshal(item)
 	if err != nil {
@@ -251,7 +257,7 @@ func createItem(item moduls.Item, hostPort string) {
 }
 
 // updateItem отправляет PUT-запрос на сервер для обновления элемента с указанным ID.
-func updateItem(itemID string, updatedItem moduls.Item, hostPort string) {
+func updateItem(itemID string, updatedItem Item, hostPort string) {
 	// Кодирование обновленной структуры Item в JSON.
 	itemJSON, err := json.Marshal(updatedItem)
 	if err != nil {
@@ -259,9 +265,9 @@ func updateItem(itemID string, updatedItem moduls.Item, hostPort string) {
 		return
 	}
 
-	// Создание клиента для отправки PUT-запроса. bytes.NewBuffer(itemJSON)
+	// Создание клиента для отправки PUT-запроса.
 	client := &http.Client{}
-	req, err := http.NewRequest("PUT", fmt.Sprintf("http://%s/items/%s/", hostPort, itemID), bytes.NewBuffer(itemJSON))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("http://%s/items/%s", hostPort, itemID), bytes.NewBuffer(itemJSON))
 	if err != nil {
 		fmt.Println("Ошибка при создании PUT-запроса:", err)
 		return
@@ -275,16 +281,6 @@ func updateItem(itemID string, updatedItem moduls.Item, hostPort string) {
 		return
 	}
 	defer resp.Body.Close()
-
-	// Читаем и конвертируем тело ответа в байты
-	bytesResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	// Выводим содержимое тела ответа
-	fmt.Println(string(bytesResp))
 
 	// Обработка ответа сервера.
 	printResponse(resp)
