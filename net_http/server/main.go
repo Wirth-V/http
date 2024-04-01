@@ -38,7 +38,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io"
 	"net/http"
 	"net_http/moduls"
@@ -93,15 +92,17 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 	// Обработка запроса в зависимости от типа переданного URL.
 	moduls.InfoLog.Println("Получен GET-запрос")
 
-	buf := make(map[string]string)
+	slice := make([]*moduls.Item, 0)
 
-	for k, m := range items {
-		buf[k] = m.Name
+	for _, m := range items {
+		slice = append(slice, m)
 	}
 
-	fmt.Println(buf)
+	//if item, ok := items[itemID]; ok {
+	//sendJSONResponse(w, http.StatusOK, item)
+
 	// Если в пути обращения GET - "/items/" , возвращаем список всех элементов.
-	sendJSONResponse(w, http.StatusOK, buf)
+	sendJSONResponse(w, http.StatusOK, slice)
 }
 
 // handleGET - обработчик для HTTP-запросов методом GET.
