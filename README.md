@@ -18,7 +18,18 @@
   - `update --name {название} {id}` или `update --name {название} --id {id}` - PUT /items/{id}
   - `delete {id}` или `delete -id {id}` - DELETE /items/{id}
 
-## `Пример запросов:`
-1) Создать запись c именем User в списке item: `./client request --host localhost:8080/ list --name User  ` 
-2) Вывести список всех записей в item:  `./client request --host localhost:8080/ list`
-3) Обновить обновить имя поьзователя с заданным  ID: `./client request --host localhost:8080/ update --name NewNameUser --id 1`
+## `Пример команд для запуска сервера`
+1) `./app start  ` 
+2) `./app start -host localhost -port 8080`
+3)  `./app start -port 9090 -host localhost`
+
+## `Пример команд для клиента`
+1) `./app request  create -name Diablo`
+2) `./app request list `
+3) `./app request -host localhost -port 9091 create -name User`
+4) `./app request -host localhost -port 9091 create User`
+5) `./app request -host localhost -port 9091 list`
+6) `./app request -host localhost -port 8080 get -id 2a58ab85`
+7) `./app request -host localhost -port 8080 update -name USER -id cd4aec7d`
+8) `./app request -host localhost -port 8080 update -name USER cd4aec7d`
+9) `./app request -host localhost -port 8080 delete -id 3390b10a`
