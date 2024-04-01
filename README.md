@@ -18,19 +18,7 @@
   - `delete {id}` или `delete -id {id}` - DELETE /items/{id}
 
 
-## `Пример команд для запуска сервера`
-1) `./server start  ` 
-2) `./server start -host localhost -port 8080`
-3)  `./server start -port 9090 -host localhost`
-
-## `Пример команд для клиента`
-1) `./client request  create -name Diablo`
-2) ` ./client request list `
-3) `./client request -host localhost -port 9091 create -name User`
-4) `./client request -host localhost -port 9091 create User`
-5) `./client request -host localhost -port 9091 list`
-6) `./client request -host localhost -port 8080 get -id 2a58ab85`
-7) `./client request -host localhost -port 8080 update -name USER -id cd4aec7d`
-8) `./client request -host localhost -port 8080 update -name USER cd4aec7d`
-9) `./client request -host localhost -port 8080 delete -id 3390b10a`
-
+## `Пример запросов:`
+1) Создать запись c именем User в списке item: `./client request --host localhost:8080/ list --name User  ` 
+2) Вывести список всех записей в item:  `./client request --host localhost:8080/ list`
+3) Обновить обновить имя поьзователя с заданным  ID: `./client request --host localhost:8080/ update --name NewNameUser --id 1`
