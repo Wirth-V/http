@@ -28,7 +28,7 @@
 2) ` ./client request list `
 3) `./client request -host localhost -port 9091 create -name User`
 4) `./client request -host localhost -port 9091 create User`
-5) ` ./client request -host localhost -port 9091 list`
+5) `./client request -host localhost -port 9091 list`
 6) `./client request -host localhost -port 8080 get -id 2a58ab85`
 7) `./client request -host localhost -port 8080 update -name USER -id cd4aec7d`
 8) `./client request -host localhost -port 8080 update -name USER cd4aec7d`
