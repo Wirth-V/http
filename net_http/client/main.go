@@ -77,10 +77,7 @@ func main() {
 
 	hostPort := strings.Join([]string{*host, *port}, ":")
 
-	fmt.Printf("\n")
-
 	switch req.Arg(0) {
-
 	case "list":
 		list := flag.NewFlagSet("list", flag.ExitOnError)
 
@@ -189,7 +186,7 @@ func main() {
 			return
 		}
 
-		newUpdat := moduls.Item{ID: *idName, Name: *nameUpdate} //sanitaze
+		newUpdat := moduls.Item{ID: *idName, Name: *nameUpdate}
 
 		fmt.Println(newUpdat)
 
