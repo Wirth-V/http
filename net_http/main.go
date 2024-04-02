@@ -17,9 +17,9 @@ func main() {
 
 	switch os.Args[1] {
 	case "start":
-		moduls.Server(req, host, port)
+		moduls.Server(req, host, port) //запустит сервер
 	case "request":
-		moduls.Client(req, host, port)
+		moduls.Client(req, host, port) //запустит клиент
 	default:
 		fmt.Println("You flag is not correct:")
 		os.Exit(1)

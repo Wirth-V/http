@@ -1,37 +1,4 @@
-/*
-1. Придумать название для консольного приложения;
-2. Приложение должно:
-2.1. По команде {название_приложения} start [--port {port_number}] поднимать web-сервер доступный по адресу http://localhost:{8080 или port_number}.
-Web-cервер будет хранить список структур
-type Item struct {
-  ID string
-  Name string
-}
-
-Сервер должен обрабатывать следующие запросы:
-+--------------------------+--------------------------------------------------------+---------------------+-----------------------------+
-| URL                      | Описание                                               | json-формат запроса | json-формат ответа          |
-+==========================+========================================================+=====================+=============================+
-| GET /items/              | возвращает список item'ов                              | -                   | [{"id":"", "name":""}, ...] |
-| GET /items/{item_id}/    | возвращает item у которого ID == item_id               | -                   | {"id":"", "name":""}        |
-| POST /items/             | добавляет item со уникальным ID и переданным названием | {"name":"..."}      | {"id":"", "name":""}        |
-| PUT /items/{item_id}/    | изменяет название item'а с соответствующим ID          | {"name":"..."}      | - или {"id":"", "name":""}  |
-| DELETE /items/{item_id}/ | удаляет item                                           | -                   | -                           |
-+--------------------------+--------------------------------------------------------+---------------------+-----------------------------+
-
-Все запросы принимающие {item_id} должны возвращать NotFound (404) если item'а с таким id не существует.
-Название (name) не может быть пустым. Если пустое - BadRequest (400)
-Если всё хорошо OK (200). Можно также присылать Created (201) или NoContent (204) в определённых случаях
-
-2.2. По команде {название_приложения} request [--port {port_number}] {вложенная_команда} выполнять запросы в зависимости от вложенной команды:
-  - list - выполняет запрос GET /items/;
-  - get {id} - выполняет GET /items/{id};
-  - create --name {название} - выполняет POST /items/;
-  - update --name {название} {id} - PUT /items/{id};
-  - delete {id} - DELETE /items/{id};
-
-Результаты вызовов напечатать в вывод команд.
-*/
+//данный модуль реазлизует клиентскую часть приложения
 
 package moduls
 
@@ -47,29 +14,17 @@ import (
 	"strings"
 )
 
-/*
-// Item представляет структуру данных для элементов списка.
-type Item struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-*/
-
 func Client(req *flag.FlagSet, host *string, port *string) {
-
-	/*
-		nethttp.exe request --host localhost:9999 create --name test_name
-		nethttp.exe one --....
-		nethttp.exe two --...
-	*/
 
 	//Проверяет длинну и допустимость вводимых данных
 	if Sanitize(*host) && Length(*host) && Sanitize(*port) && Length(*port) {
 		return
 	}
 
+	//Объяденяет хост и порт в одну строку
 	hostPort := strings.Join([]string{*host, *port}, ":")
 
+	//Определяет функционал вложенных команд
 	switch req.Arg(0) {
 	case "list":
 		list := flag.NewFlagSet("list", flag.ExitOnError)
@@ -85,14 +40,19 @@ func Client(req *flag.FlagSet, host *string, port *string) {
 
 		list.Parse(req.Args()[1:])
 
+		//Определяет поведение кода, когда вместо флага команды `-id {id}`
+		//вводится аргумент команды `{id}` без флага
 		if *nameList == "" {
 
 			if list.Args() != nil {
+
+				//ничего не ввили
 				if list.Arg(0) == "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
 				}
 
+				//ввели что-то лишнее
 				if list.Arg(1) != "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
@@ -106,6 +66,7 @@ func Client(req *flag.FlagSet, host *string, port *string) {
 
 		}
 
+		//Контроль длинны и символов в водимой строке
 		if Sanitize(*nameList) && Length(*nameList) {
 			return
 		}
@@ -119,14 +80,18 @@ func Client(req *flag.FlagSet, host *string, port *string) {
 
 		creates.Parse(req.Args()[1:])
 
+		//Определяет поведение кода, когда вместо флага команды `-name {Имя}`
+		//вводится аргумент команды `{Имя}` без флага
 		if *nameCreate == "" {
 
 			if creates.Args() != nil {
+				//ничего не ввели
 				if creates.Arg(0) == "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
 				}
 
+				//ввели что-то лишнее
 				if creates.Arg(1) != "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
@@ -139,6 +104,7 @@ func Client(req *flag.FlagSet, host *string, port *string) {
 			}
 		}
 
+		//Контроль длинны и символов в водимой строке
 		if Sanitize(*nameCreate) && Length(*nameCreate) {
 			return
 		}
@@ -154,14 +120,20 @@ func Client(req *flag.FlagSet, host *string, port *string) {
 
 		update.Parse(req.Args()[1:])
 
+		//Определяет поведение кода, когда вместо флагов команды `-name {Имя} -id {id}`
+		//вводится флаг и аргумент команды `-name {Имя} {id}`
+
+		//При этом игнарирование флага `-name' не допустимо
 		if *idName == "" {
 
 			if update.Args() != nil {
+				//ничего не ввели
 				if update.Arg(0) == "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
 				}
 
+				//ввели что-то лишнее
 				if update.Arg(1) != "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
@@ -175,6 +147,7 @@ func Client(req *flag.FlagSet, host *string, port *string) {
 
 		}
 
+		//проверка введенных значений
 		if Sanitize(*nameUpdate) && Sanitize(*idName) && Length(*nameUpdate) && Length(*idName) {
 			return
 		}
@@ -192,14 +165,17 @@ func Client(req *flag.FlagSet, host *string, port *string) {
 
 		delete.Parse(req.Args()[1:])
 
+		//Определяет поведение кода, когда вместо флага команды `-id {id}`
+		//вводится аргумент команды `{id}` без флага
 		if *idDelete == "" {
 
 			if delete.Args() != nil {
+				//ничего не ввели
 				if delete.Arg(0) == "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
 				}
-
+				//ввели что-то лишнее
 				if delete.Arg(1) != "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
@@ -212,6 +188,7 @@ func Client(req *flag.FlagSet, host *string, port *string) {
 			}
 		}
 
+		//проверка введенных значений
 		if Sanitize(*idDelete) && Length(*idDelete) {
 			return
 		}
