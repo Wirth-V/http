@@ -1,10 +1,15 @@
 # `Создание своего клиент-серверного приложения на Golang.`
 
 ## `Сборка проекта:`
-1) `cd {путь до папки с проектом}/http/net_http`
-2) `go mod init app`
-3) `go get github.com/google/uuid`
-4) `go build`
+1) `cd {путь до папки с проектом}/http/net_http/postgresbd` -- в файле прописано, что БД расположена в хосте localhost на порту 6667
+2) `docker-compose -f postgresbd.yml up -d`
+3) Зайти в только что созданную базу `postgres:12.1-alpine` и создать таблицу `clients` с полями `id` и `name`
+4) `cd ..`
+5) `go mod init app`
+6) `go get github.com/google/uuid`
+7) `go get github.com/jackc/pgx/v5`
+8) 
+9) `go build`
 
 ## `Запуск сервера:`
 1) По команде `./app start [--host {host_name}] [--port {port_number}]` поднимется web-сервер доступный по адресу `http://{localhost или host_name}:{8080 или port_number}`
@@ -24,7 +29,7 @@
 3)  `./app start -port 9090 -host localhost`
 
 ## `Пример команд для клиента`
-1) `./app request  create -name Diablo`
+1) `./app request create -name Diablo`
 2) `./app request list `
 3) `./app request -host localhost -port 9091 create -name User`
 4) `./app request -host localhost -port 9091 create User`
