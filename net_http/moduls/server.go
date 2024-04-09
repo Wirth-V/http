@@ -1,19 +1,61 @@
 package moduls
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 // items - глобальная переменная, представляющая соотношение элементов по их уникальным ID.
 var items = make(map[string]*Item)
+var connFerst *pgx.Conn
+var err error
 
 func Server(req *flag.FlagSet, host *string, port *string) {
+
+	connString := ("host=localhost port=6667 user=server dbname=server password=198416 sslmode=disable")
+
+	// Установка соединения с базой данных
+	connFerst, err = pgx.Connect(context.Background(), connString)
+	if err != nil {
+		fmt.Println("Unable to connect to database:", err)
+		return
+	}
+	defer connFerst.Close(context.Background())
+
+	// Пример выполнения SQL-запроса и получения результата
+	// Запрос данных из таблицы
+	rowsFerst, err := connFerst.Query(context.Background(), "SELECT * FROM clients")
+	if err != nil {
+		fmt.Println("Error querying database:", err)
+		return
+	}
+	defer rowsFerst.Close()
+
+	var id string
+	var name string
+	var newItem Item
+	// Итерация по результатам запроса и вывод содержимого
+	for rowsFerst.Next() {
+		// Поменяйте тип данных на соответствующий вашей таблице
+		// Пример чтения данных из строки
+		err_bd := rowsFerst.Scan(&id, &name) // Замените переменные на соответствующие вашей таблице
+		if err_bd != nil {
+			fmt.Println("Error scanning row:", err_bd)
+			return
+		}
+		newItem.ID = id
+		newItem.Name = name
+		// Вывод содержимого строки
+		items[id] = &newItem // Измените вывод на соответствующий вашей таблице
+	}
 
 	InfoLog.Println("Сервер запущен.")
 	InfoLog.Printf("Хост:%s Порт:%s", *host, *port)
@@ -30,9 +72,9 @@ func Server(req *flag.FlagSet, host *string, port *string) {
 	http.HandleFunc("DELETE /items/{id}/", handleDELETE)
 
 	// Запуск веб-сервера на порту 8080.
-	err := http.ListenAndServe(strings.Join([]string{*host, *port}, ":"), nil)
-	if err != nil {
-		ErrorLog.Fatal("Ошибка запуска сервера:", err)
+	err_bd := http.ListenAndServe(strings.Join([]string{*host, *port}, ":"), nil)
+	if err_bd != nil {
+		ErrorLog.Fatal("Ошибка запуска сервера:", err_bd)
 	}
 }
 
@@ -104,6 +146,13 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 	newItem.ID = GenerateID()
 	items[newItem.ID] = &newItem
 
+	rows, err := connFerst.Query(context.Background(), "INSERT INTO clients (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return
+	}
+	defer rows.Close()
+
 	// Отправка JSON-ответа с созданным элементом и статусом "Created".
 	sendJSONResponse(w, http.StatusCreated, newItem)
 }
@@ -141,8 +190,16 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		rows, err := connFerst.Query(context.Background(), "UPDATE clients SET name = $1 WHERE id = $2", updatedItem.Name, itemID)
+		if err != nil {
+			fmt.Println("Error executing query:", err)
+			return
+		}
+		defer rows.Close()
+
 		// Обновление имени элемента и отправка JSON-ответа с обновленным элементом.
 		item.Name = updatedItem.Name
+
 		sendJSONResponse(w, http.StatusOK, item)
 	} else {
 		// Если элемент с указанным ID не существует, возвращаем ошибку "Not Found".
@@ -168,6 +225,14 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if item, ok := items[itemID]; ok {
+
+		rows, err := connFerst.Query(context.Background(), "DELETE FROM clients WHERE id = $1", itemID)
+		if err != nil {
+			fmt.Println("Error executing query:", err)
+			return
+		}
+		defer rows.Close()
+
 		// Если элемент существует, удаление элемента из карты.
 		delete(items, item.ID)
 		// Возвращение статуса "No Content" (204) в ответе.
