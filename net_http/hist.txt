@@ -1,0 +1,1000 @@
+  611  ./server 
+  612  go build main.go 
+  613  ./server 
+  614  go build main.go 
+  615  ./server 
+  616  cd //
+  617  cd ..
+  618  ls
+  619  cd ~
+  620  ls
+  621  cd go
+  622  ls
+  623  cd ..
+  624  cd snap/
+  625  ls
+  626  cd http/
+  627  ls
+  628  cd ..
+  629  ls
+  630  cd ..
+  631  ls
+  632  cd projects/
+  633  ls
+  634  cd http/
+  635  l
+  636  ls
+  637  cd from_courses/
+  638  ls
+  639  cd package_uuid/
+  640  ls
+  641  go run main.go 
+  642  http POST http://localhost:8080/items/ name=Vadim
+  643  go run main.go 
+  644  http POST http://localhost:8080/items/ name=Vadim
+  645  history
+  646  http POST http://localhost:8080/items/ name=Vadim
+  647  go run main.go request --host=localhost --port=9091 update -id 6bf7af27 -name OOOOOO
+  648  go run main.go request --host=localhost --port=9091 update -id 6bf7af27 -name OOOOOO cd /home/virth/projects/http/net_http/client ; /usr/bin/env GOPATH=/home/virth/go /home/virth/go/bin/dlv dap --client-addr=:46735 
+  649  go run main.go request --host=localhost --port=9091 update -id 6bf7af27 -name OOOOOO
+  650  go run main.go request --host=localhost --port=9091 update -id 6bf7af27 -name OOOOOO cd /home/virth/projects/http/net_http/client ; /usr/bin/env GOPATH=/home/virth/go /home/virth/go/bin/dlv dap --client-addr=:36261 
+  651  ls
+  652  cd net_http/
+  653  ls
+  654  go mod init net_http
+  655  go get "github.com/google/uuid"
+  656  ls
+  657  cd server/
+  658  ls
+  659  go build 
+  660  ./server 
+  661  go build 
+  662  ls
+  663  go build
+  664  ./server 
+  665  go build
+  666  ./server 
+  667  go build
+  668  ./server 
+  669  go build
+  670  ./server 
+  671  go build
+  672  ./server 
+  673  go build
+  674  ./server 
+  675  go build
+  676  ./server 
+  677  ./server start 8989
+  678  go build
+  679  ./server start 8989
+  680  go build
+  681  ./server 
+  682  go build
+  683  ./server 
+  684  go build
+  685  ./server 
+  686  go build
+  687  ./server stert --port :9090
+  688  ./server stert --port 9090
+  689  go build
+  690  ./server stert --port 9090
+  691  go build
+  692  ./server stert --port 9090
+  693  go build
+  694  ./server stert --port 9090
+  695  ./server start --port 9090
+  696  go build
+  697  ./server start --port 9090
+  698  go build
+  699  ./server start --port=9090
+  700  go build
+  701  ./server start --port=9090
+  702  go build
+  703  ./server start --port=9090
+  704  go build
+  705  ./server start --port=9091
+  706  ./server start --port=:9091
+  707  go build
+  708  ./server start --port=:9091dddd
+  709  go build
+  710  ./server start --port=:9091dddd
+  711  go build
+  712  ./server start --port=:9091dddd
+  713  go build
+  714  ./server start --port=:9091dddd
+  715  ./server start --port=:9091
+  716  go build
+  717  ./server start --port=:9091
+  718  ./server start --port=9091
+  719  go build
+  720  ./server start --port=9091
+  721  go build
+  722  ./server start --port=9091
+  723  go build
+  724  ./server start --port=9091
+  725  go build
+  726  ./server start --port=9091
+  727  go build
+  728  ./server start --port=9091
+  729  go build
+  730  ./server start --port=9091
+  731  go build
+  732  ./server start --port=9091
+  733  go build
+  734  ./server start --port=9091
+  735  go build
+  736  ./server start --host=localhost --port=9091
+  737  go build
+  738  ./server start --host=localhost --port=9091
+  739  go build
+  740  ./server start --host=localhost --port=9091
+  741  go build
+  742  ./server start --host=localhost --port=9091
+  743  go run server start --host=localhost --port=9091
+  744  go run server.go start --host=localhost --port=9091
+  745  ls
+  746  go run main.go start --host=localhost --port=9091
+  747  go build 
+  748  cd ..
+  749  ls
+  750  cd server/
+  751  go run main.go start --host=localhost --port=9091
+  752  ls
+  753  http POST http://localhost:8080/items/ name=Vadim
+  754  http POST http://localhost:8080/items/ name=Diablo
+  755  ls
+  756  go get moduls/Err.go
+  757  cd ..
+  758  ls
+  759  go build 
+  760  go build net_http
+  761  ls
+  762  go mod init net_http
+  763  go get
+  764  go get github.com/google/uuid 
+  765  http POST http://localhost:8080/items/ name=Diablosdsfssdfdsf
+  766  http POST http://localhost:8080/items/ name=Diablo
+  767  http POST http://localhost:8080/items/ name=Diab
+  768  http GET http://localhost:8080/items/ 
+  769  http POST http://localhost:8080/items/ name=Diabdededededededed
+  770  http POST http://localhost:8080/items/ name=Diabdededededededed_
+  771  http GET http://localhost:8080/items/ 
+  772  http POST http://localhost:8080/items/ name=Diabdededededededed_
+  773  http POST http://localhost:8080/items/ name=Dia
+  774  http POST http://localhost:8080/items/ name=Diak
+  775  http POST http://localhost:8080/items/ name=Diakывывфывыфвфыв
+  776  http POST http://localhost:8080/items/ name=Diak____dsadwadw
+  777  http GET http://localhost:8080/items/ 
+  778  http POST http://localhost:8080/items/ name=Diak____dsadwadw
+  779  http GET http://localhost:8080/items/
+  780  http POST http://localhost:8080/items/ name=112345678901234567890
+  781  http POST http://localhost:9090/items/ name=112345678901234567890
+  782  http POST http://localhost:9090/items/ name=1123
+  783  http POST http://localhost:8080/items/ name=1123
+  784  http POST http://localhost:9090/items/ name=1123
+  785  http POST http://localhost:9090/items/ name=1123f
+  786  http POST http://localhost:9091/items/ name=1123f1321432412433243243ffefef32234
+  787  http POST http://localhost:9091/items/ name=1123f
+  788  http POST http://localhost:9091/items/ name=1123fss
+  789  http POST http://localhost:9091/items/ name=Vsfd
+  790  http POST http://localhost:9091/items/ name=Vsfdfsd
+  791  http GET http://localhost:9091/items/ 
+  792  http POST http://localhost:9091/items/ name=Vsfdfsd
+  793  http GET http://localhost:9091/items/ 
+  794  http POST http://localhost:9091/items/ name=Vsfdfsd
+  795  http GET http://localhost:9091/items/ 
+  796  http POST http://localhost:9091/items/ name=Vsfdfsd
+  797  http GET http://localhost:9091/items/ 
+  798  http POST http://localhost:9091/items/ name=Vsfdfsd
+  799  http GET http://localhost:9091/items/ 
+  800  http POST http://localhost:9091/items/ name=Vsfdfsd
+  801  http POST http://localhost:9091/items/ name=Vsfdfsdwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+  802  http POST http://localhost:9091/items/ name=Vsfdfsd
+  803  http GET http://localhost:9091/items/ 
+  804  http POST http://localhost:9091/items/ name=Vsfdfsd
+  805  http GET http://localhost:9091/items/ 
+  806  ls
+  807  cd ..
+  808  cd net_http/
+  809  ls
+  810  cd client/
+  811  ls
+  812  go run main.go request --host=localhost --port=9091
+  813  http POST http://localhost:9091/items/ name=Vsfdfsd
+  814  go run main.go request --host=localhost --port=9091
+  815  go run main.go request --host=localhost --port=9091 -create Vadim
+  816  go run main.go request --host=localhost --port=9091 create -mame Vadim
+  817  go run main.go request --host=localhost --port=9091 create -name Vadim
+  818  go run main.go request --host=localhost --port=9091 get dfd dfsf
+  819  go run main.go request --host=localhost --port=9091 list
+  820  http POST http://localhost:9091/items/ name=Vsfdfsd
+  821  http POST http://localhost:9091/items/ name=Vadim
+  822  http POST http://localhost:9091/items/ name=test
+  823  go run main.go request --host=localhost --port=9091 list
+  824  go run main.go request --host=localhost --port=9091 get --id a5b45c6f
+  825  go run main.go request --host=localhost --port=9091 get --id a5b45c6f fdf
+  826  go run main.go request --host=localhost --port=9091 get --id a5b45c6f fdf dsdas
+  827  go run main.go request --host=localhost --port=9091 list
+  828  go run main.go request --host=localhost --port=9091 get --id a5b45c6f fdf dsdas
+  829  http POST http://localhost:9091/items/ name=Vadim
+  830  http POST http://localhost:9091/items/ name=test
+  831  http POST http://localhost:9091/items/ name=testsd
+  832  http POST http://localhost:9091/items/ name=testsdsfd
+  833  go run main.go request --host=localhost --port=9091 get --id a5b45c6f fdf dsdas
+  834  go run main.go request --host=localhost --port=9091 get --id 026d70fc fdf dsdas
+  835  go run main.go request --host=localhost --port=9091 get 026d70fc dsdas
+  836  go run main.go request --host=localhost --port=9091 get 026d70fc 
+  837  http POST http://localhost:9091/items/ name=testsdsfd
+  838  go run main.go request --host=localhost --port=9091 list
+  839  go run main.go request --host=localhost --port=9091 get a1281e6c
+  840  go run main.go request --host=localhost --port=9091 get --id 026d70fc fdf dsdas
+  841  go run main.go request --host=localhost --port=9091 get 026d70fc dsdas
+  842  go run main.go request --host=localhost --port=9091 get --id 026d70fc fdf dsdas
+  843  go run main.go request --host=localhost --port=9091 update ---name Satean --id 026d70fc
+  844  go run main.go request --host=localhost --port=9091 update --name Satean --id 026d70fc
+  845  go run main.go request --host=localhost --port=9091 update --name Satean --id 026d70fc sdsd
+  846  go run main.go request --host=localhost --port=9091 update --name Satean --id 026d70fc 
+  847  go run main.go request --host=localhost --port=9091 update --name Satean --id 026d70fc  dd we wd w 
+  848  go run main.go request --host=localhost --port=9091 update --name Satean 026d70fc  dd we wd w 
+  849  go run main.go request --host=localhost --port=9091 update --name Satean 026d70fc 
+  850  go run main.go request --host=localhost --port=9091 list
+  851  go run main.go request --host=localhost --port=9091 update --name Satean 026d70fc  dd we wd w 
+  852  go run main.go request --host=localhost --port=9091 update --name Satean 026d70fc 
+  853  go run main.go request --host=localhost --port=9091 update --name Satean --id 026d70fc 
+  854  go run main.go request --host=localhost --port=9091 update --id 026d70fc --name Satean
+  855  go run main.go request --host=localhost --port=9091 list
+  856  http POST http://localhost:9091/items/ name=KKKKKKKKK
+  857  go run main.go request --host=localhost --port=9091 update --name Satean --id 4fa0b95b
+  858  go run main.go request --host=localhost --port=9091 create --name Satean
+  859  go run main.go request --host=localhost --port=9091 update --name Satean --id 4fa0b95b
+  860  ls
+  861  go run main.go request --host=localhost --port=9091 update --name Satean --id 4fa0b95b
+  862  http PUT http://localhost:9091/items/4fa0b95b name=FFFFFFFF
+  863  http PUT http://localhost:9091/items/4fa0b95b name=FFFFFFF
+  864  http PUT http://localhost:9091/items/4fa0b95b/ name=FFFFFFF
+  865  go run main.go request --host=localhost --port=9091 update --name Satean --id 4fa0b95b
+  866  http POST http://localhost:9091/items/ name=Vsfdfsd
+  867  http POST http://localhost:9091/items/ name=XXXXX
+  868  http POST http://localhost:9091/items/ name=XXXXXVadim
+  869  http POST http://localhost:9091/items/ name=yyyyyyy
+  870  go run main.go request --host=localhost --port=9091 update --name Satean --id 4debe7ac
+  871  cd ..
+  872  ls
+  873  cd client/
+  874  ls
+  875  go build main
+  876  go build main.go
+  877  ls
+  878  ./ main request --host=localhost --port=9091 update --name Satean --id 4debe7ac
+  879  ./main request --host=localhost --port=9091 update --name Satean --id 4debe7ac
+  880  http GET http://localhost:9091/items/ 
+  881  ./main request --host=localhost --port=9091 update --name Satean --id c3b64325
+  882  http GET http://localhost:9091/items/ 
+  883  ./main request --host=localhost --port=9091 update --name Satean --id c3b64325
+  884  http GET http://localhost:9091/items/ 
+  885  http POST http://localhost:9091/items/c3b64325 name=KILKILKIL
+  886  ./main request --host=localhost --port=9091 update --name Saten --id c3b64325
+  887  ./main request --host=localhost --port=9091 update --id c3b64325 --name Saten
+  888  CСВ ЮЮ
+  889  cd ..
+  890  ls
+  891  cd ..
+  892  ls
+  893  go build test.go 
+  894  pwd
+  895  go run test.go request --host=localhost --port=9091 update --id c3b64325 --name Saten
+  896  http POST http://localhost:9091/items/c3b64325 name=KILKILKIL
+  897  go run test.go request --host=localhost --port=9091 update --id c3b64325 --name 5cea3905
+  898  go run test.go request --host=localhost --port=9091 update --id c3b64325 --name FFFFFFF
+  899  go run test.go request --host=localhost --port=9091 updat --name LLLLLLLLLLL  --id c3b64325
+  900  go run test.go request --host=localhost --port=9091 updat --name LLLLLLLLLLL --id c3b64325
+  901  go run test.go request --host=localhost --port=9091 updat --name LL --id c3b64325
+  902  go run test.go request --host=localhost --port=9091 updat --name=LLLL --id c3b64325
+  903  go run test.go request --host=localhost --port=9091 update --id c3b64325 --name Fl
+  904  ls
+  905  cd net_http/
+  906  ls
+  907  cd client/
+  908  go run test.go request --host=localhost --port=9091 update --id c3b64325 --name Fl
+  909  go run client.go request --host=localhost --port=9091 update --id c3b64325 --name Fl
+  910  go run main.go request --host=localhost --port=9091 update --id c3b64325 --name Fl
+  911  go run test.go request --host=localhost --port=9091 listen
+  912  go run test.go request --host=localhost --port=9091 lisne
+  913  go run test.go request --host=localhost --port=9091 list
+  914  http GET http://localhost:9091/items/ 
+  915  go run main.go request --host=localhost --port=9091 update --id e158724d --name OCHKO
+  916  http GET http://localhost:9091/items/ 
+  917  cd ..
+  918  go mod init
+  919  go mod init net_http
+  920  go get 
+  921  go get net_http
+  922  go get init
+  923  go get 
+  924  go get net_http
+  925  go get github.com/google/uuid
+  926  cd client/
+  927  ls
+  928  cd ..
+  929  ls
+  930  go get net_http
+  931  ls
+  932  go build net_http
+  933  go mod init net_http
+  934  cd client/
+  935  ls
+  936  http POST http://localhost:9091/items/c3b64325 name=KILKILKIL
+  937  go run main.go request --host=localhost --port=9091 update --id 5623e241 --name OCHKO
+  938  http GET http://localhost:9091/items/c3b64325 
+  939  http GET http://localhost:9091/items/5623e241 
+  940  go run main.go request --host=localhost --port=9091 update --id 7b986839 --name OCHKO
+  941  http GET http://localhost:9091/items/5623e241 
+  942  http GET http://localhost:9091/items/7b986839/
+  943  go run main.go request --host=localhost --port=9091 update --name OKTO
+  944  go run main.go request --host=localhost --port=9091 GET
+  945  http GET http://localhost:9091/items/7b986839/
+  946  http POST http://localhost:9091/items/c3b64325 name=KILKILKIL
+  947  http GET http://localhost:9091/items/7b986839/
+  948  http POST http://localhost:9091/items/c3b64325 name=KILKILKIL
+  949  http POST http://localhost:9091/items/c3b64325/ name=KILKILKIL
+  950  http POST http://localhost:9091/items/ name=KILKILKIL
+  951  http GET http://localhost:9091/items/ 
+  952  http GET http://localhost:9091/items/7b986839/
+  953  http GET http://localhost:9091/items/
+  954  http POST http://localhost:9091/items/ name=KILKILKIL
+  955  http GET http://localhost:9091/items/e5e86caf
+  956  http GET http://localhost:9091/items/e5e86caf/
+  957  go run main.go request --host=localhost --port=9091 list
+  958  go run main.go request --host=localhost --port=9091 get 1a8b0e2e
+  959  go run main.go request --host=localhost --port=9091 get -id 1a8b0e2e
+  960  go run main.go request --host=localhost --port=9091 update -id 1a8b0e2e -name OOOOO
+  961  go run main.go request --host=localhost --port=9091 create --name Vadim
+  962  go run main.go request --host=localhost --port=9091 get -id 1a8b0e2e
+  963  go run main.go request --host=localhost --port=9091 get 
+  964  go run main.go request --host=localhost --port=9091 liat
+  965  go run main.go request --host=localhost --port=9091 list
+  966  http GET http://localhost:9091/items/
+  967  go run main.go request --host=localhost --port=9091 create --name Vadim
+  968  go run main.go request --host=localhost --port=9091 update -id 6bf7af27 -name OOOOOO
+  969  go run main.go request --host=localhost --port=9091 update -name OOOO -id 6bf7af27
+  970  dlb
+  971  dlv
+  972  go get github.com/go-delve/delve/cmd/dlv
+  973  dlv version
+  974  sudo go get github.com/go-delve/delve/cmd/dlv
+  975  go install -x -v github.com/go-delve/delve/cmd/dlv
+  976  dlv version
+  977  go get github.com/go-delve/delve/cmd/dlv
+  978  dlv version
+  979  sudo apt install delve
+  980  dlv version
+  981  go run main.go request --host=localhost --port=9091 update -id 6bf7af27 -name OOOOOO
+  982  go run main.go request --host=localhost --port=9091 create --name Vadim
+  983  go run main.go request --host=localhost --port=9091 update -id 6bf7af27 -name OOOOOO
+  984  go run main.go request --host=localhost --port=9091 update -id 6bf7af27 -name OOOOOab80c715
+  985  go run main.go request --host=localhost --port=9091 update -id 6bf7af27 -name OOOOO
+  986  go run main.go request --host=localhost --port=9091 lisent
+  987  go run main.go request --host=localhost --port=9091 lisen
+  988  list
+  989  go run main.go request --host=localhost --port=9091 list
+  990  go run main.go request --host=localhost --port=9091 update -id cc06c0a2 -name OOOOO
+  991  go run main.go request --host=localhost --port=9091 list
+  992  go run main.go request --host=localhost --port=9091 update -id cc06c0a2 -name OOOOO
+  993  go run main.go request --host=localhost --port=9091 get cc06c0a2
+  994  go run main.go request --host=localhost --port=9091 update -id cc06c0a2 -name OOOOO
+  995  go run main.go request --host=localhost --port=9091 update -id cc06c0a2 -name OOi
+  996  go run main.go request --host=localhost --port=9091 lisen
+  997  go run main.go request --host=localhost --port=9091 list
+  998  go run main.go request --host=localhost --port=9091 update -id c9a83b7a -name OOi
+  999  go run main.go request --host=localhost --port=9091 update -id c9a83b7a -name OOia
+ 1000  go run main.go request --host=localhost --port=9091 list
+ 1001  ls
+ 1002  cd net_http/
+ 1003  http POST http://localhost:8080/items/ name=Vadim
+ 1004  http PUT http://localhost:9091/items/4fa0b95b name=AAAAA
+ 1005  http PUT http://localhost:9091/items/4fa0b95b/ name=AAAAA
+ 1006  go run test.go request --host=localhost --port=9091 update --name Satean --id 4fa0b95b
+ 1007  ls
+ 1008  cd from_courses/
+ 1009  cd map
+ 1010  go run var.go 
+ 1011  ls
+ 1012  go build
+ 1013  ls
+ 1014  go build var.go 
+ 1015  ls
+ 1016  cd ..
+ 1017  ls
+ 1018  cd map
+ 1019  ls
+ 1020  go run var.go 
+ 1021  cd net_http/
+ 1022  cd server/
+ 1023  ls
+ 1024  go build main.go 
+ 1025  ./server start -host localhost -port 8080 
+ 1026  go build main.go 
+ 1027  ./server start -host localhost -port 8080 
+ 1028  go run server.go start -host localhost -port 8080 
+ 1029  go run main.go start -host localhost -port 8080 
+ 1030  go run server.go start -host localhost -port 8080 
+ 1031  go run main.go start -host localhost -port 8080 
+ 1032  ls
+ 1033  cd ..
+ 1034  ls
+ 1035  cd ..
+ 1036  ls
+ 1037  cd go/
+ 1038  ls
+ 1039  cd bin/
+ 1040  ls
+ 1041  cd ..
+ 1042  ls
+ 1043  cd..
+ 1044  cd ..
+ 1045  ls
+ 1046  cd ..
+ 1047  ls
+ 1048  cd ..
+ 1049  ls
+ 1050  cd usr/
+ 1051  ls
+ 1052  cd bin/
+ 1053  ls
+ 1054  cd ..
+ 1055  ls
+ 1056  cd b
+ 1057  cd bin
+ 1058  ls
+ 1059  cd ,,
+ 1060  cd ..
+ 1061  ls
+ 1062  cd usr/
+ 1063  ls
+ 1064  cd b
+ 1065  cd bin/
+ 1066  ls
+ 1067  cd ..
+ 1068  ls
+ 1069  cd ~
+ 1070  ls
+ 1071  mkdir environments
+ 1072  cd environments/
+ 1073  ls
+ 1074  python3 -m venv my_env
+ 1075  ls my_env
+ 1076  ls
+ 1077  cd ..
+ 1078  ls
+ 1079  cd ..
+ 1080  ls
+ 1081  cd ..
+ 1082  ls
+ 1083  cd ~
+ 1084  ls
+ 1085  ks
+ 1086  cd go/
+ 1087  ls
+ 1088  cd ..
+ 1089  cd environments/
+ 1090  ls
+ 1091  cd my_env/
+ 1092  ls
+ 1093  source my_env/bin/activate
+ 1094  cd ..
+ 1095  ls
+ 1096  source my_env/bin/activate
+ 1097  cd from_courses/
+ 1098  ls
+ 1099  cd ma
+ 1100  cd map
+ 1101  ls
+ 1102  go run var.go 
+ 1103  cd ..
+ 1104  cd errors/
+ 1105  go run creating_errors.go 
+ 1106  go run err_nil.go 
+ 1107  uhuh
+ 1108  cd ..
+ 1109  cd map
+ 1110  ls
+ 1111  go run var.go 
+ 1112  cd ..
+ 1113  cd struct/
+ 1114  ls
+ 1115  go build var.go 
+ 1116  ls
+ 1117  ./var 
+ 1118  cd ..
+ 1119  ls
+ 1120  cd mas
+ 1121  go build var.go 
+ 1122  ./var 
+ 1123  cd ../../net_http/server/
+ 1124  ls
+ 1125  go build
+ 1126  ls
+ 1127  ./server start -host localhost -port 8080
+ 1128  ./server start 
+ 1129  python -m http.server
+ 1130  sudo apt -y upgrade
+ 1131  python3 -V
+ 1132  python -m http.server
+ 1133  python -т http.server
+ 1134  python -n http.server
+ 1135  sudo apt install -y python3-pip
+ 1136  ls\
+ 1137  ls
+ 1138  sudo apt install -y build-essential libssl-dev libffi-dev python3-dev
+ 1139  sudo apt install -y python3-venv
+ 1140  python -n http.server
+ 1141  python -m http.server
+ 1142  python2 -m http.server
+ 1143  python3 -m http.server
+ 1144  python3 -n http.server
+ 1145  python3 -m http.server
+ 1146  ls
+ 1147  cd ..
+ 1148  ls
+ 1149  cd ..
+ 1150  ls
+ 1151  cd .. 
+ 1152  ls
+ 1153  cd ..
+ 1154  ls
+ 1155  rm -r environments/
+ 1156  ls
+ 1157  python3 -m http.server
+ 1158  cd net_http/
+ 1159  ls
+ 1160  clear
+ 1161  ls
+ 1162  cd client/
+ 1163  http GEThttp://localhost:8080/items/
+ 1164  http GET http://localhost:8080/items/
+ 1165  http POST  http://localhost:8080/items/ name=Vadim
+ 1166  http POST  http://localhost:8080/items/ name=Ctun
+ 1167  http POST  http://localhost:8080/items/ name=Rleix
+ 1168  http GET http://localhost:8080/items/
+ 1169  go build main.go 
+ 1170  ./client request -host localhost -port 8080 list 
+ 1171  http GET http://localhost:8080/items/
+ 1172  http POST  http://localhost:8080/items/ name=Rleix
+ 1173  http POST  http://localhost:8080/items/ name=Rlei
+ 1174  http GET http://localhost:8080/items/
+ 1175  ./client request -host localhost -port 8080 list 
+ 1176  ./client request -host localhost -port 8080 get ff22cc37
+ 1177  http POST  http://localhost:8080/items/ name=Rlei
+ 1178  http GET http://localhost:8080/items/
+ 1179  http POST  http://localhost:8080/items/ name=Rlei
+ 1180  http GET http://localhost:8080/items/
+ 1181  http POST  http://localhost:8080/items/ name=Rlei
+ 1182  http GET http://localhost:8080/items/
+ 1183  http GET http://localhost:8080/items/5af43564
+ 1184  http GET http://localhost:8080/items/5af43564/
+ 1185  http POST  http://localhost:8080/items/ name=Rlei
+ 1186  http PUT  http://localhost:8080/items/5af43564/ name=Dead
+ 1187  http DEALETE  http://localhost:8080/items/5af43564/ 
+ 1188  http DELETE  http://localhost:8080/items/5af43564/ 
+ 1189  ./client request -host localhost -port 8080 list 
+ 1190  ./client request -host localhost -port 8080 get 2a58ab85
+ 1191  ./client request -host localhost -port 8080 get -id 2a58ab85
+ 1192  ./client request -host localhost -port 8080 creat --name Vadim
+ 1193  ./client request -host localhost -port 8080 create --name Vadim
+ 1194  ./client request -host localhost -port 8080 createKtun
+ 1195  ./client request -host localhost -port 8080 create Ktun
+ 1196  ./client request -host localhost -port 8080 create -name Diablo
+ 1197  ./client request -host localhost -port 8080 list
+ 1198  ./client request -host localhost -port 8080 get cd4aec7d
+ 1199  ./client request -host localhost -port 8080 get -id cd4aec7d
+ 1200  ./client request -host localhost -port 8080 get cd4aec7d
+ 1201  ./client request -host localhost -port 8080 update cd4aec7d
+ 1202  ./client request -host localhost -port 8080 update -name VADIM cd4aec7d
+ 1203  ./client request -host localhost -port 8080 update -name VADIM -id cd4aec7d
+ 1204  ./client request -host localhost -port 8080 update -name VADIMEE -id cd4aec7d
+ 1205  ./client request -host localhost -port 8080 update -id cd4aec7d -name Vadim
+ 1206  ./client request -host localhost -port 8080 list
+ 1207  ./client request -host localhost -port 8080 delete 88b5433e
+ 1208  ./client request -host localhost -port 8080 list
+ 1209  ./client request -host localhost -port 8080 delete -id 3390b10a
+ 1210  ./client request -host localhost -port 8080 list 
+ 1211  ./client request list 
+ 1212  ./client request  create -name Diablo
+ 1213  ./client request -host localhost -port 8080 delete -id 3390b10a
+ 1214  ./client request list 
+ 1215  ./client request -host localhost -port 8080 get cd4aec7d
+ 1216  ./client request -host 0.0.0.0 -port 8080 create -name Diablo
+ 1217  http POST http://localhost:8080/items/ name=Rlei
+ 1218  http Get http://localhost:8080/items/ 
+ 1219  http GET http://localhost:8080/items/ 
+ 1220  http GET http://localhost:8080/
+ 1221  http GET http://0.0.0.0:8080/
+ 1222  ls
+ 1223  cd ..
+ 1224  cd client/
+ 1225  http GET http://0.0.0.0:8000/
+ 1226  ./client request -host localhost -port 8000 create -name Diablo
+ 1227  ./client request -host localhost -port 8000 list
+ 1228  http GET http://0.0.0.0:8000/
+ 1229  ./client request -host localhost -port 8000 list
+ 1230  ./client request -host localhost -port 8000 create -name Diablo
+ 1231  http PUT http://0.0.0.0:8000/ name=NNJN
+ 1232  ./client request -host localhost -port 8000 create -name Diablo
+ 1233  ls
+ 1234  cd net_http/
+ 1235  ls
+ 1236  cd server/
+ 1237  go build 
+ 1238  python3 -m http.server
+ 1239  clear 
+ 1240  go build 
+ 1241  ./server 
+ 1242  ./server start -host localhost -port 8080
+ 1243  go build 
+ 1244  ./server start -host localhost -port 8080
+ 1245  go build 
+ 1246  ./server start -host localhost -port 8080
+ 1247  go build 
+ 1248  ./server start -host localhost -port 8080
+ 1249  go build 
+ 1250  ./server start -host localhost -port 8080
+ 1251  ls
+ 1252  cd net_http/
+ 1253  ls
+ 1254  cd client/
+ 1255  ls
+ 1256  go build
+ 1257  ./client request -host localhost -port 8000 create -name Diablo
+ 1258  ./client request -host localhost -port 8000 list
+ 1259  ./client request -host localhost -port 8000 create 
+ 1260  ./client request -host localhost -port 8000 create -name Vadim
+ 1261  ./client request -host localhost -port 8000 update -id 34243 -name VADIM
+ 1262  ./client request -host localhost -port 8000 dealet -id 34243 
+ 1263  ./client request -host localhost -port 8000 delete -id 34243 
+ 1264  clear
+ 1265  go build
+ 1266  ./client request -host localhost -port 8000 delete -id 34243 
+ 1267  ./client request -host localhost -port 8000 create -name Vadim
+ 1268  ./client request -host localhost -port 8080 create -name Vadim
+ 1269  go build
+ 1270  ./client request -host localhost -port 8080 create -name Vadim
+ 1271  ./client request -host localhost -port 8000 delete -id 34243 
+ 1272  ./client request -host localhost -port 8080 list
+ 1273  go build
+ 1274  ./client request -host localhost -port 8080 list
+ 1275  ls
+ 1276  git push 
+ 1277  sudo git push 
+ 1278  sudo git cline https://github.com/Wirth-V/http.git
+ 1279  sudo git clone https://github.com/Wirth-V/http.git
+ 1280  ls
+ 1281  cd http/
+ 1282  ls
+ 1283  cd ..
+ 1284  ls
+ 1285  rm -f http
+ 1286  rm -r http
+ 1287  ls
+ 1288  cd http/
+ 1289  ls
+ 1290  cd ..
+ 1291  ls
+ 1292  rm -r http
+ 1293  sudo rm -r http
+ 1294  ls
+ 1295  git pul
+ 1296  git pull
+ 1297  sudo git pull
+ 1298  sudo git config pull.rebase false
+ 1299  ls
+ 1300  cd net_http/
+ 1301  ls
+ 1302  cd server/
+ 1303  ls
+ 1304  go build
+ 1305  ./server start 
+ 1306  go build
+ 1307  cd net_http/
+ 1308  ls
+ 1309  cd client/
+ 1310  ls
+ 1311  go build
+ 1312  ./client request -host localhost -port 8080 list
+ 1313  ./app port -host localhost -port 8080 create -name Vadin
+ 1314  ./app requset port -host localhost -port 8080 create -name Vadin
+ 1315  ./app request port -host localhost -port 8080 create -name Vadin
+ 1316  ./app request -port -host localhost -port 8080 create -name Vadin
+ 1317  ./app request -host localhost -port 8080 create -name Vadin
+ 1318  ./app request -port -host localhost -port 8080 create -name Vadin
+ 1319  ./app request -host localhost -port 8080 create -name Vadin
+ 1320  ./app request -host localhost -port 8080 create -name list
+ 1321  ./app request -host localhost -port 8080 create -name Vadin
+ 1322  ./app request -host localhost -port 8080 create -name list
+ 1323  ./app request -host localhost -port 8080 list
+ 1324  ls
+ 1325  cd net_http/
+ 1326  ls
+ 1327  go mod init 
+ 1328  go mod init app
+ 1329  go get
+ 1330  go get github.com/google/uuid
+ 1331  go build main.go 
+ 1332  go get  /usr/local/go/src/net_http/moduls
+ 1333  go get net_http/moduls
+ 1334  go build main.go 
+ 1335  go build
+ 1336  go run main.go start -host localhost -port 8080
+ 1337  go build
+ 1338  ./main start 
+ 1339  ./app start 
+ 1340  go build
+ 1341  ls
+ 1342  go build 
+ 1343  go build nethttp
+ 1344  go build net_http
+ 1345  ls
+ 1346  go bild app
+ 1347  go build app
+ 1348  go build .
+ 1349  history 
+ 1350  go mod init app
+ 1351  go get github.com/google/uuid
+ 1352  docker ps
+ 1353  docker ps -a
+ 1354  docker run --name pgSQL-16.2 -p 5432:5432 -e POSTGRES_PASSWORD=198416 -d postgres:16.2
+ 1355  docker ps -a
+ 1356  docker ps 
+ 1357  docker exec -ti postgres:12.1-alpine /bin/bash
+ 1358  docker exec -ti 40b621aaad90 /bin/bash
+ 1359  docker run --name pgSQL-16.2_2 -p 5432:5432 -e POSTGRES_PASSWORD=198416 -d postgres:16.2 /bin/bash
+ 1360  docker run --name pgSQL-16.2_2 -p 6666:6666 -e POSTGRES_PASSWORD=198416 -d postgres:16.2 /bin/bash
+ 1361  docker run --name pgSQL-16.2_3 -p 6666:6666 -e POSTGRES_PASSWORD=198416 -d postgres:16.2 /bin/bash
+ 1362  docker run --name pgSQL-16.2 -p 5432:5432 -e POSTGRES_PASSWORD=198416 -d postgres:16.2 /bin/bash
+ 1363  docker ps
+ 1364  docker run --name pgSQL-16.2 -p 6666:5432 -e POSTGRES_PASSWORD=198416 -d postgres:16.2 /bin/bash
+ 1365  docker run --name pgSQL-16.2_2 -it -p 6666:5432 -e POSTGRES_PASSWORD=198416 -d postgres:16.2 /bin/bash
+ 1366  docker run --name pgSQL-16.2_2 -it -p 6666:5432 -e POSTGRES_PASSWORD=198416 -d postgres:16.2
+ 1367  pocker ps
+ 1368  docker ps
+ 1369  docker exec -it pgSQL-16.2_2
+ 1370  docker exec -it pgSQL-16.2_2 /bin/bash
+ 1371  docker exec pgSQL-16.2_2 /bin/bash
+ 1372  docker exec -it pgSQL-16.2_2 /bin/bash
+ 1373  docker run -it --name pgSQL-16.2_2  -p 6667:5432 -e POSTGRES_PASSWORD=198416 -d postgres:16.2
+ 1374  docker run -it --name pgSQL-16.2  -p 6667:5432 -e POSTGRES_PASSWORD=198416 -d postgres:16.2
+ 1375  docker run -it --name pgSQL-16.2_3  -p 6668:5432 -e POSTGRES_PASSWORD=198416 -d postgres:16.2 /bin/bash
+ 1376  ls
+ 1377  cd projects/
+ 1378  ls
+ 1379  cd scacer_analyzer/
+ 1380  ls
+ 1381  find -n "docker-compose-postgres.yml"
+ 1382  find --name "docker-compose-postgres.yml"
+ 1383  find . -name "docker-compose-postgres.yml"
+ 1384  go get https://gitlab.ispras.ru/svace-services/support/-/blob/master/docker-compose/docker-compose-postgres.yml?ref_type=heads
+ 1385  go install https://gitlab.ispras.ru/svace-services/support/-/blob/master/docker-compose/docker-compose-postgres.yml?ref_type=heads
+ 1386  ls
+ 1387  git install https://gitlab.ispras.ru/svace-services/support/-/blob/master/docker-compose/docker-compose-postgres.yml?ref_type=heads
+ 1388  git get https://gitlab.ispras.ru/svace-services/support/-/blob/master/docker-compose/docker-compose-postgres.yml?ref_type=heads
+ 1389  ls
+ 1390  cd ..
+ 1391  ls
+ 1392  cd ..
+ 1393  ls
+ 1394  cd projects/
+ 1395  ls
+ 1396  cd http/
+ 1397  ls
+ 1398  cd net_http/
+ 1399  ls
+ 1400  nano docker-compose-postgres.yml
+ 1401  ls
+ 1402  cd net_http/
+ 1403  nano docker-compose-postgres.yml
+ 1404  docker-compose -f docker-compose/docker-compose-postgresr.yml up -d
+ 1405  ls
+ 1406  mkdir  docker-compose
+ 1407  ls
+ 1408  mv docker-compose-postgres.yml  
+ 1409  ls
+ 1410  docker-compose -f docker-compose/docker-compose-postgres.yml up -d
+ 1411  cd docker-compose/
+ 1412  ls
+ 1413  nano docker-compose-postgres.yml 
+ 1414  nano docker-compose-postgres_1.yml 
+ 1415  docker-compose -f docker-compose/docker-compose-postgres_1.yml up -d
+ 1416  cd ..
+ 1417  docker-compose -f docker-compose/docker-compose-postgres_1.yml up -d
+ 1418  docker-compose -f docker-compose/docker-compose-postgres.yml up -d
+ 1419  docker-compose -f docker-compose/docker-compose-postgres_1.yml up -d
+ 1420  docker-compose -f docker-compose/docker-compose-postgres.yml up -d
+ 1421  ls
+ 1422  rm -r docker-compose/
+ 1423  ls
+ 1424  sudo rm -r docker-compose/
+ 1425  ls
+ 1426  cd ..
+ 1427  ls
+ 1428  cd ..
+ 1429  ls
+ 1430  mv  scacer_analyzer  svacer_analyzer
+ 1431  ls
+ 1432  cd svacer_analyzer/
+ 1433  ls
+ 1434  cd support/
+ 1435  ls
+ 1436  docker-compose -f docker-compose/docker-compose-postgres.yml up -d
+ 1437  nano  docker-compose/docker-compose-postgres.yml
+ 1438  cd ..
+ 1439  ls
+ 1440  cd ..
+ 1441  ls
+ 1442  cd http/
+ 1443  ls
+ 1444  mkdir postgresbd.yml 
+ 1445  ls
+ 1446  mkdir postgresbd.yml postgresbd
+ 1447  ls
+ 1448  rm postgresbd.yml/
+ 1449  rm -r postgresbd.yml/
+ 1450  ls
+ 1451  cd postgresbd/
+ 1452  ls
+ 1453  nano postgresbd.yml
+ 1454  ls
+ 1455  nano postgresbd.yml
+ 1456  pwd
+ 1457  mkdir inDocker
+ 1458  ls
+ 1459  nano postgresbd.yml
+ 1460  ls
+ 1461  cd ..
+ 1462  ls
+ 1463  cd postgresbd/
+ 1464  ls
+ 1465  docker-compose -f postgresbd.yml up -d
+ 1466  nano postgresbd.yml
+ 1467  docker-compose -f postgresbd.yml up -d
+ 1468  nano postgresbd.yml
+ 1469  docker-compose -f postgresbd.yml up -d
+ 1470  nano postgresbd.yml
+ 1471  psql
+ 1472  sudo apt install postgresql-client-common
+ 1473  psql
+ 1474  psql --version
+ 1475  apt-get remove postgresql-client-common
+ 1476  sudo apt-get remove postgresql-client-common
+ 1477  psql
+ 1478  nano ./bash
+ 1479  psql
+ 1480  sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+ 1481  wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+ 1482  sudo apt-get update
+ 1483  sudo apt-get -y install postgresql
+ 1484  psql
+ 1485  psql --version
+ 1486  sudo -i -u postgres
+ 1487  sudo -i -u sys
+ 1488  sudo -i -u swtpm
+ 1489  /user/sbin/nologin
+ 1490  /usr/sbin/nologin
+ 1491  psql -U postgres
+ 1492  sudo psql -U postgres
+ 1493  sudo psql  -U postgres -h localhost
+ 1494  psql -U postgres -h localhost
+ 1495  psql -U postgres -h localhost -w postgres
+ 1496  psql -U postgres -h localhost -w 198416
+ 1497  psql -U server -h localhost -w 198416
+ 1498  psql -U server -h localhost -w 198416 -p 6667
+ 1499  psql -U server -h localhost -p 6667
+ 1500  sudo -i -u postgres
+ 1501  explorer.exe .
+ 1502  psql
+ 1503  ll /var/
+ 1504  sudo -i -u postgres
+ 1505  sudo -u postgres psql postgres
+ 1506  sudo -i -u postgres
+ 1507  sudo -i -u server
+ 1508  psql
+ 1509  sudo -u postgres psql
+ 1510  ssh -N -L 1234:/var/run/mysqld/mysqld.sock demo
+ 1511  cd ..
+ 1512  cd ..\
+ 1513  cd ..
+ 1514  ls
+ 1515  cd run/
+ 1516  ls
+ 1517  cd postgresql
+ 1518  ls
+ 1519  ll
+ 1520  pwd
+ 1521  ssh -N -L 1234:/run/postgresql/.s.PGSQL.5433 demo
+ 1522  ssh -N -L 1234:/run/postgresql/.s.PGSQL.5433 
+ 1523  ssh -N -L 1234:/run/postgresql/.s.PGSQL.5433 localhost
+ 1524  socat
+ 1525  sudo apt install socat
+ 1526  socat
+ 1527  socat TCP-LISTEN:5555 TCP:/run/postgresql/.s.PGSQL.5433
+ 1528  socat TCP-LISTEN:5555 UNIX-CONNECT:/run/postgresql/.s.PGSQL.5433
+ 1529  sudo -u postgres socat TCP-LISTEN:5555 UNIX-CONNECT:/run/postgresql/.s.PGSQL.5433
+ 1530  sud0 -i -u postgres
+ 1531  sudo -i -u postgres
+ 1532  psql
+ 1533  sudo -i -u virth
+ 1534  sudo -u postgres psql
+ 1535  sudo -u postgres psql -d virth
+ 1536  sudo adduser sammy
+ 1537  sudo adduser sam
+ 1538  sudo -i -u sam
+ 1539  sudo -u createuser --interactive
+ 1540  sudo -u postgres createuser --interactive
+ 1541  sudo -i -u sam
+ 1542  service postgresql status
+ 1543  cd net_http/
+ 1544  ls
+ 1545  go mod init app
+ 1546  go get github.com/google/uuid
+ 1547  go build
+ 1548  ./app start -host localhost -port 8080
+ 1549  ./app request -host localhost -port 8080 create -name Vadim
+ 1550  cd net_http/
+ 1551  ./app request -host localhost -port 8080 create -name Vadim
+ 1552  ./app request -host localhost -port 8080 list
+ 1553  тьфз
+ 1554  nmap
+ 1555  sudo snap install nmap
+ 1556  nmap
+ 1557  nmap -з
+ 1558  nmap -p
+ 1559  nmap -p 5432
+ 1560  nmap lockalhost
+ 1561  nmap localhost
+ 1562  docker ps
+ 1563  service postgresql status
+ 1564  service postgresql irc
+ 1565  service irc status
+ 1566  docker ps
+ 1567  service postgresbd-pgSQL-16.2_1-1 status
+ 1568  service svacer-postgres_db-1  status
+ 1569  service postgresbd irc
+ 1570  service svacer-postgres_db-1  status
+ 1571  service postgresql irc
+ 1572  service postgresql status
+ 1573  service postgresbd status
+ 1574  psql -U postgres
+ 1575  psql -U postgresql
+ 1576  psql -U server
+ 1577  psql -U postgresbd-pgSQL-16.2_1-1
+ 1578  psql -U postgresbd
+ 1579  psql -U postgresql
+ 1580  psql -U postgres
+ 1581  ps axf | grep postgres
+ 1582  netstat -nltp | grep 5432
+ 1583  sudo apt install net-tools
+ 1584  netstat -nltp | grep 5432
+ 1585  netstat -nltp | grep 6667
+ 1586  sudo netstat -nltp | grep 6667
+ 1587  sudo netstat -nltp | grep 5432
+ 1588  ps axf | grep postgres
+ 1589  ls
+ 1590  cd projects/
+ 1591  ls
+ 1592  cd svacer_analyzer/
+ 1593  ls
+ 1594  cd  ..
+ 1595  ls
+ 1596  cd http/
+ 1597  ls
+ 1598  cd postgresbd/
+ 1599  ls
+ 1600  netstat -nlp | grep 5432
+ 1601  netstat -nlp | grep 5433
+ 1602  netstat -nlp | grep 543
+ 1603  netstat -nlp | grep 5555
+ 1604  netstat -nlp | grep 6666
+ 1605  netstat -nlp | grep 6667
+ 1606  history
+ 1607   nano hist.txt
+ 1608  hist.txt
+ 1609  nano hist.txt
+ 1610  history > hist.txt
