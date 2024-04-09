@@ -3,13 +3,12 @@
 ## `Сборка проекта:`
 1) `cd {путь до папки с проектом}/http/net_http/postgresbd` -- в файле прописано, что БД расположена в хосте localhost на порту 6667
 2) `docker-compose -f postgresbd.yml up -d`
-3) Зайти в только что созданную базу `postgres:12.1-alpine` и создать таблицу `clients` с полями `id` и `name`
+3) Зайти в только что созданную базу `server` и создать таблицу `clients` с полями `id` и `name`
 4) `cd ..`
 5) `go mod init app`
 6) `go get github.com/google/uuid`
 7) `go get github.com/jackc/pgx/v5`
-8) 
-9) `go build`
+8) `go build`
 
 ## `Запуск сервера:`
 1) По команде `./app start [--host {host_name}] [--port {port_number}]` поднимется web-сервер доступный по адресу `http://{localhost или host_name}:{8080 или port_number}`
