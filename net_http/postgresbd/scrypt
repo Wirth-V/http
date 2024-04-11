@@ -1,0 +1,9 @@
+CREATE DATABASE server;
+
+\c server
+
+CREATE TABLE clients
+(
+    id VARCHAR(8),
+    name VARCHAR(30)
+);
