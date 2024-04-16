@@ -17,11 +17,20 @@ import (
 var items = make(map[string]*Item)
 var connFerst *pgx.Conn
 var err error
+var Table string
 
-func Server(req *flag.FlagSet, host *string, port *string) {
+func Server(req *flag.FlagSet, host *string, port *string, db *string, table *string) {
+	connString := "postgres://server:198416@localhost:6667/" + *db
+	Table = *table
+
+	err := checkDatabaseExistence(connString, Table)
+	if err != nil {
+		fmt.Println("Error checking database existence:", err)
+		return
+	}
+
 	// postgres://server:198416@localhost:6667/
 	// host=localhost port=6667 user=server dbname=server password=198416 sslmode=disable
-	connString := "postgres://server:198416@localhost:6667/server"
 
 	// Установка соединения с базой данных
 	connFerst, err = pgx.Connect(context.Background(), connString)
@@ -33,7 +42,7 @@ func Server(req *flag.FlagSet, host *string, port *string) {
 
 	// Пример выполнения SQL-запроса и получения результата
 	// Запрос данных из таблицы
-	rowsFerst, err := connFerst.Query(context.Background(), "SELECT * FROM clients")
+	rowsFerst, err := connFerst.Query(context.Background(), "SELECT * FROM "+Table)
 	if err != nil {
 		fmt.Println("Error querying database:", err)
 		return
@@ -147,7 +156,7 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 	newItem.ID = GenerateID()
 	items[newItem.ID] = &newItem
 
-	rows, err := connFerst.Query(context.Background(), "INSERT INTO clients (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
+	rows, err := connFerst.Query(context.Background(), "INSERT INTO $1 (id, name) VALUES ($2, $3)", Table, newItem.ID, newItem.Name)
 	if err != nil {
 		fmt.Println("Error executing query:", err)
 		return
@@ -191,7 +200,7 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		rows, err := connFerst.Query(context.Background(), "UPDATE clients SET name = $1 WHERE id = $2", updatedItem.Name, itemID)
+		rows, err := connFerst.Query(context.Background(), "UPDATE $3 SET name = $1 WHERE id = $2", updatedItem.Name, itemID, Table)
 		if err != nil {
 			fmt.Println("Error executing query:", err)
 			return
@@ -227,7 +236,7 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 
 	if item, ok := items[itemID]; ok {
 
-		rows, err := connFerst.Query(context.Background(), "DELETE FROM clients WHERE id = $1", itemID)
+		rows, err := connFerst.Query(context.Background(), "DELETE FROM $2 WHERE id = $1", itemID, Table)
 		if err != nil {
 			fmt.Println("Error executing query:", err)
 			return
@@ -271,4 +280,52 @@ func decodeJSONBody(body io.Reader, v interface{}) error {
 // GenerateID - генерирует уникальный ID для элемента
 func GenerateID() string {
 	return uuid.New().String()[:8]
+}
+
+// Проверяет наличие бд, если его нет, то создет нужное бд и таблицу
+func checkDatabaseExistence(connString string, Table string) error {
+	connConfig, err := pgx.ParseConfig(connString)
+	if err != nil {
+		return err
+	}
+
+	dbname := connConfig.Database
+
+	connConfig.Database = "postgres" // Соединение с бд, чтобы проверить существование заданной базы
+	conn, err := pgx.ConnectConfig(context.Background(), connConfig)
+	if err != nil {
+		return err
+	}
+	defer conn.Close(context.Background())
+
+	var exists bool
+	err = conn.QueryRow(context.Background(), "SELECT EXISTS (SELECT FROM pg_database WHERE datname = $1)", dbname).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		// Создание бд
+		_, err = conn.Exec(context.Background(), "CREATE DATABASE "+dbname)
+		if err != nil {
+			return err
+		}
+
+		// Установка подключения к созданной бд
+		connConfig.Database = dbname
+		conn, err = pgx.ConnectConfig(context.Background(), connConfig)
+		if err != nil {
+			return err
+		}
+		defer conn.Close(context.Background())
+
+		// Создание таблицы
+		_, err = conn.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8), name VARCHAR(30))")
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
 }
