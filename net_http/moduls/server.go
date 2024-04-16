@@ -284,29 +284,37 @@ func GenerateID() string {
 
 // Проверяет наличие бд, если его нет, то создет нужное бд и таблицу
 func checkDatabaseExistence(connString string, Table string) error {
-	connConfig, err := pgx.ParseConfig(connString)
+	//разбора строки и созданиt подключения к бд
+	connConfig, err := pgx.ParseConfig(connString) //возвращает структуру
+	//pgx.ConnConfig, содержащую параметры соединения
 	if err != nil {
 		return err
 	}
 
+	//извлекается имя подключаемой бд
 	dbname := connConfig.Database
 
-	connConfig.Database = "postgres" // Соединение с бд, чтобы проверить существование заданной базы
+	connConfig.Database = "postgres" // Соединение с бд, чтобы проверить ее существование
 	conn, err := pgx.ConnectConfig(context.Background(), connConfig)
 	if err != nil {
 		return err
 	}
 	defer conn.Close(context.Background())
 
+	//проверка существования бд
 	var exists bool
+	//Выполняется запрос к системной таблице pg_database, чтобы проверить существует ли бд
 	err = conn.QueryRow(context.Background(), "SELECT EXISTS (SELECT FROM pg_database WHERE datname = $1)", dbname).Scan(&exists)
+	//conn.QueryRow Выполнения запроса о существовании, возвращает true или false в противном случае.
 	if err != nil {
 		return err
 	}
 
+	//создание бд
 	if !exists {
-		// Создание бд
+		//сама команда создания отсутсвующей бд
 		_, err = conn.Exec(context.Background(), "CREATE DATABASE "+dbname)
+
 		if err != nil {
 			return err
 		}
