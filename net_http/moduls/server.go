@@ -21,7 +21,7 @@ var err error
 func Server(req *flag.FlagSet, host *string, port *string) {
 	// postgres://server:198416@localhost:6667/
 	// host=localhost port=6667 user=server dbname=server password=198416 sslmode=disable
-	connString := ("postgres://server:198416@localhost:6667/server")
+	connString := "postgres://server:198416@localhost:6667/server"
 
 	// Установка соединения с базой данных
 	connFerst, err = pgx.Connect(context.Background(), connString)

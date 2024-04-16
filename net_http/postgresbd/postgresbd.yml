@@ -1,8 +1,11 @@
+
 version: "3.6"
 services:
-  pgSQL-16.2_1:
-    image: postgres:12.1-alpine
+  postgresql:
+    image: postgres:12.16
+    container_name: server_bd
     restart: always
+    shm_size: 1g
     environment:
       - POSTGRES_DB=server
       - POSTGRES_USER=server
@@ -10,6 +13,9 @@ services:
       - POSTGRES_ROOT_PASSWORD=198416
     ports:
       - "6667:5432"
-    shm_size: 4g
     volumes:
-      - ./inDocker:/var/lib/postgresql/data 
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      svacer:
+networks:
+  svacer:
