@@ -2,8 +2,8 @@
 
 ## `Сборка проекта:`
 1) `cd {путь до папки с проектом}/http/net_http/postgresbd` -- в файле прописано, что БД расположена в хосте localhost на порту 6667
-2) `docker-compose -f postgresbd.yml up -d` -- создание и запуск докера с psql
-3)  `psql -h localhost -p 6667 -U server < /home/virth/projects/http/net_http/postgresbd/scrypt` -- создание БД `server` и таблицы `clients` (пароль для пользователя server `198416`)
+2) `docker-compose -f postgresbd.yml up -d`
+3) Зайти в только что созданную базу `server` и создать таблицу `clients` с полями `id` и `name`
 4) `cd ..`
 5) `go mod init app`
 6) `go get github.com/google/uuid`
