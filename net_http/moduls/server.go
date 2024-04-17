@@ -155,7 +155,7 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 	newItem.ID = GenerateID()
 	items[newItem.ID] = &newItem
 
-	rows, err := connFerst.Query(context.Background(), "INSERT INTO $1 (id, name) VALUES ($2, $3)", Table, newItem.ID, newItem.Name)
+	rows, err := connFerst.Query(context.Background(), "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
 	if err != nil {
 		fmt.Println("Error executing query:", err)
 		return
