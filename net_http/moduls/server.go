@@ -16,7 +16,6 @@ import (
 // items - глобальная переменная, представляющая соотношение элементов по их уникальным ID.
 var items = make(map[string]*Item)
 var connFerst *pgx.Conn
-var err error
 var Table string
 
 func Server(req *flag.FlagSet, host *string, port *string, db *string, table *string) {
