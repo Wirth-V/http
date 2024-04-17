@@ -23,7 +23,7 @@ func Server(req *flag.FlagSet, host *string, port *string, db *string, table *st
 	connString := "postgres://server:198416@localhost:6667/" + *db
 	Table = *table
 
-	err := checkDatabaseExistence(connString, Table)
+	err := db_control(connString, Table)
 	if err != nil {
 		fmt.Println("Error checking database existence:", err)
 		return
@@ -283,9 +283,10 @@ func GenerateID() string {
 }
 
 // Проверяет наличие бд, если его нет, то создет нужное бд и таблицу
-func checkDatabaseExistence(connString string, Table string) error {
-	//разбора строки и созданиt подключения к бд
-	connConfig, err := pgx.ParseConfig(connString) //возвращает структуру
+func db_control(connString string, Table string) error {
+	//разбора строки, возвращает структуру
+	connConfig, err := pgx.ParseConfig(connString)
+	fmt.Println(connConfig)
 	//pgx.ConnConfig, содержащую параметры соединения
 	if err != nil {
 		return err
@@ -294,26 +295,29 @@ func checkDatabaseExistence(connString string, Table string) error {
 	//извлекается имя подключаемой бд
 	dbname := connConfig.Database
 
-	connConfig.Database = "postgres" // Соединение с бд, чтобы проверить ее существование
-	conn, err := pgx.ConnectConfig(context.Background(), connConfig)
+	//меняет название подключаемой бд
+	connConfig.Database = "postgres"
+	fmt.Println(connConfig)
+	//Соединение с бд, чтобы проверить ее существование
+	conn_db, err := pgx.ConnectConfig(context.Background(), connConfig)
 	if err != nil {
 		return err
 	}
-	defer conn.Close(context.Background())
+	defer conn_db.Close(context.Background())
 
 	//проверка существования бд
-	var exists bool
+	var exists_db bool
 	//Выполняется запрос к системной таблице pg_database, чтобы проверить существует ли бд
-	err = conn.QueryRow(context.Background(), "SELECT EXISTS (SELECT FROM pg_database WHERE datname = $1)", dbname).Scan(&exists)
-	//conn.QueryRow Выполнения запроса о существовании, возвращает true или false в противном случае.
+	err = conn_db.QueryRow(context.Background(), "SELECT EXISTS (SELECT FROM pg_database WHERE datname = $1)", dbname).Scan(&exists_db)
+	//conn.QueryRow Выполнения запроса о существовании, возвращает true, если существует, или false, если нет.
 	if err != nil {
 		return err
 	}
 
 	//создание бд
-	if !exists {
+	if !exists_db {
 		//сама команда создания отсутсвующей бд
-		_, err = conn.Exec(context.Background(), "CREATE DATABASE "+dbname)
+		_, err = conn_db.Exec(context.Background(), "CREATE DATABASE "+dbname)
 
 		if err != nil {
 			return err
@@ -321,19 +325,60 @@ func checkDatabaseExistence(connString string, Table string) error {
 
 		// Установка подключения к созданной бд
 		connConfig.Database = dbname
-		conn, err = pgx.ConnectConfig(context.Background(), connConfig)
+		conn_db, err = pgx.ConnectConfig(context.Background(), connConfig)
 		if err != nil {
 			return err
 		}
-		defer conn.Close(context.Background())
+		defer conn_db.Close(context.Background())
 
 		// Создание таблицы
-		_, err = conn.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8), name VARCHAR(30))")
+		_, err = conn_db.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8), name VARCHAR(30))")
 		if err != nil {
 			return err
+		}
+
+	} else {
+		connConfig.Database = dbname
+		conn_table, err := pgx.ConnectConfig(context.Background(), connConfig)
+		if err != nil {
+			return err
+		}
+		defer conn_table.Close(context.Background())
+
+		var exists_table bool
+		//Выполняется запрос к системной таблице pg_database, чтобы проверить существует ли бд
+		err = conn_table.QueryRow(context.Background(), "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", Table).Scan(&exists_table)
+		//conn.QueryRow Выполнения запроса о существовании, возвращает true, если существует, или false, если нет.
+		if err != nil {
+			return err
+		}
+
+		if !exists_table {
+
+			// Создание таблицы
+			_, err = conn_table.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8), name VARCHAR(30))")
+			if err != nil {
+				return err
+			}
 		}
 
 	}
 
+	/*
+		var exists_table bool
+		err = conn.QueryRow(context.Background(), "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", Table).Scan(&exists_table)
+		if err != nil {
+			return err
+		}
+
+		if !exists_table {
+			// Создание таблицы
+			_, err := conn.Exec(context.Background(), "CREATE TABLE "+Table+" (id VARCHAR(8), name VARCHAR(30))")
+			if err != nil {
+				fmt.Println("Error creating table:", err)
+				return err
+			}
+		}
+	*/
 	return nil
 }
