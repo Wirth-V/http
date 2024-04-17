@@ -2,7 +2,7 @@ CREATE DATABASE server;
 
 \c server
 
-CREATE TABLE clients
+CREATE TABLE item
 (
     id VARCHAR(8),
     name VARCHAR(30)
