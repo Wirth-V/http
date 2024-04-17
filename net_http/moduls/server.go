@@ -13,8 +13,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// items - глобальная переменная, представляющая соотношение элементов по их уникальным ID.
-var items = make(map[string]*Item)
 var connFerst *pgx.Conn
 var Table string
 
@@ -38,33 +36,6 @@ func Server(req *flag.FlagSet, host *string, port *string, db *string, table *st
 		return
 	}
 	defer connFerst.Close(context.Background())
-
-	// Пример выполнения SQL-запроса и получения результата
-	// Запрос данных из таблицы
-	rowsFerst, err := connFerst.Query(context.Background(), "SELECT * FROM "+Table)
-	if err != nil {
-		fmt.Println("Error querying database:", err)
-		return
-	}
-	defer rowsFerst.Close()
-
-	var id string
-	var name string
-	var newItem Item
-	// Итерация по результатам запроса и вывод содержимого
-	for rowsFerst.Next() {
-		// Поменяйте тип данных на соответствующий вашей таблице
-		// Пример чтения данных из строки
-		err_bd := rowsFerst.Scan(&id, &name) // Замените переменные на соответствующие вашей таблице
-		if err_bd != nil {
-			fmt.Println("Error scanning row:", err_bd)
-			return
-		}
-		newItem.ID = id
-		newItem.Name = name
-		// Вывод содержимого строки
-		items[id] = &newItem // Измените вывод на соответствующий вашей таблице
-	}
 
 	InfoLog.Println("Сервер запущен.")
 	InfoLog.Printf("Хост:%s Порт:%s", *host, *port)
@@ -92,17 +63,31 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 	// Обработка запроса в зависимости от типа переданного URL.
 	InfoLog.Println("Получен GET-запрос")
 
-	slice := make([]*Item, 0)
+	// Запрос данных из таблицы
+	rows, err := connFerst.Query(context.Background(), "SELECT * FROM "+Table)
+	if err != nil {
+		fmt.Println("Error querying database:", err)
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
 
-	for _, m := range items {
-		slice = append(slice, m)
+	var items []*Item
+	var id string
+	var name string
+	// Итерация по результатам запроса и добавление данных в массив items
+	for rows.Next() {
+		err := rows.Scan(&id, &name)
+		if err != nil {
+			fmt.Println("Error scanning row:", err)
+			http.Error(w, "Error scanning row", http.StatusInternalServerError)
+			return
+		}
+		items = append(items, &Item{ID: id, Name: name})
 	}
 
-	//if item, ok := items[itemID]; ok {
-	//sendJSONResponse(w, http.StatusOK, item)
-
 	// Если в пути обращения GET - "/items/" , возвращаем список всех элементов.
-	sendJSONResponse(w, http.StatusOK, slice)
+	sendJSONResponse(w, http.StatusOK, items)
 }
 
 // handleGET - обработчик для HTTP-запросов методом GET.
@@ -113,12 +98,22 @@ func handleGETid(w http.ResponseWriter, r *http.Request) {
 	// Если в пути обращения GET - "/items/{item_id}/", возвращаем соответствующий элемент.
 	itemID := r.PathValue("id")
 
-	if item, ok := items[itemID]; ok {
-		sendJSONResponse(w, http.StatusOK, item)
-	} else {
-		// Если элемент с указанным ID не существует, возвращаем ошибку "Not Found".
-		http.NotFound(w, r)
+	// Запрос данных из таблицы по ID
+	var name string
+	err := connFerst.QueryRow(context.Background(), "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(&name)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			http.NotFound(w, r)
+		} else {
+			fmt.Println("Error querying database:", err)
+			http.Error(w, "Error querying database", http.StatusInternalServerError)
+		}
+		return
 	}
+
+	// Отправка JSON-ответа с данными из базы данных
+	sendJSONResponse(w, http.StatusOK, &Item{ID: itemID, Name: name})
+
 }
 
 // handlePOST - обработчик для HTTP-запросов методом POST.
@@ -153,14 +148,13 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 	}
 	// Генерация уникального ID и добавление нового элемента в карту.
 	newItem.ID = GenerateID()
-	items[newItem.ID] = &newItem
 
-	rows, err := connFerst.Query(context.Background(), "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
+	_, err = connFerst.Exec(context.Background(), "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
 	if err != nil {
 		fmt.Println("Error executing query:", err)
+		http.Error(w, "Error executing query", http.StatusInternalServerError)
 		return
 	}
-	defer rows.Close()
 
 	// Отправка JSON-ответа с созданным элементом и статусом "Created".
 	sendJSONResponse(w, http.StatusCreated, newItem)
@@ -171,49 +165,59 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 	InfoLog.Println("Получен PUT-запрос")
 	// Извлечение ID элемента из URL.
 	itemID := r.PathValue("id")
-	if item, ok := items[itemID]; ok {
-		// Если элемент существует, декодирование JSON-тела запроса в обновленный элемент.
-		var updatedItem Item
-		err := decodeJSONBody(r.Body, &updatedItem)
-		if err != nil {
-			// Если произошла ошибка при декодировании JSON, возвращаем ошибку "Bad Request".
-			http.Error(w, "Некорректный формат JSON", http.StatusBadRequest)
-			return
-		}
 
-		// Проверка, что имя обновленного элемента не пустое.
-		if updatedItem.Name == "" {
-			// Если имя пустое, возвращаем ошибку "Bad Request".
-			http.Error(w, "Название не может быть пустым", http.StatusBadRequest)
-			return
-		}
-
-		//Проверяет длинну и допустимость вводимых данных
-		if Sanitize(updatedItem.Name) {
-			http.Error(w, "Недопустимые символы", http.StatusBadRequest)
-			return
-		}
-
-		if Length(updatedItem.Name) {
-			http.Error(w, "Недопустимая длинна (более 20 символов)", http.StatusBadRequest)
-			return
-		}
-
-		rows, err := connFerst.Query(context.Background(), "UPDATE $3 SET name = $1 WHERE id = $2", updatedItem.Name, itemID, Table)
-		if err != nil {
-			fmt.Println("Error executing query:", err)
-			return
-		}
-		defer rows.Close()
-
-		// Обновление имени элемента и отправка JSON-ответа с обновленным элементом.
-		item.Name = updatedItem.Name
-
-		sendJSONResponse(w, http.StatusOK, item)
-	} else {
-		// Если элемент с указанным ID не существует, возвращаем ошибку "Not Found".
-		http.NotFound(w, r)
+	// Если элемент существует, декодирование JSON-тела запроса в обновленный элемент.
+	var updatedItem Item
+	err := decodeJSONBody(r.Body, &updatedItem)
+	if err != nil {
+		// Если произошла ошибка при декодировании JSON, возвращаем ошибку "Bad Request".
+		http.Error(w, "Некорректный формат JSON", http.StatusBadRequest)
+		return
 	}
+
+	// Проверка, что имя обновленного элемента не пустое.
+	if updatedItem.Name == "" {
+		// Если имя пустое, возвращаем ошибку "Bad Request".
+		http.Error(w, "Название не может быть пустым", http.StatusBadRequest)
+		return
+	}
+
+	//Проверяет длинну и допустимость вводимых данных
+	if Sanitize(updatedItem.Name) {
+		http.Error(w, "Недопустимые символы", http.StatusBadRequest)
+		return
+	}
+
+	if Length(updatedItem.Name) {
+		http.Error(w, "Недопустимая длинна (более 20 символов)", http.StatusBadRequest)
+		return
+	}
+
+	// Проверка существования элемента в базе данных
+	var count int
+	err = connFerst.QueryRow(context.Background(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
+	if err != nil {
+		fmt.Println("Error querying database:", err)
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
+		return
+	}
+
+	if count == 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Обновление данных элемента в базе данных
+	_, err = connFerst.Exec(context.Background(), "UPDATE "+Table+" SET name = $1 WHERE id = $2", updatedItem.Name, itemID)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		http.Error(w, "Error executing query", http.StatusInternalServerError)
+		return
+	}
+
+	// Отправка JSON-ответа с обновленным элементом.
+	sendJSONResponse(w, http.StatusOK, &Item{ID: itemID, Name: updatedItem.Name})
+
 }
 
 // handleDELETE - обработчик для HTTP-запросов методом DELETE.
@@ -233,23 +237,30 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if item, ok := items[itemID]; ok {
-
-		rows, err := connFerst.Query(context.Background(), "DELETE FROM $2 WHERE id = $1", itemID, Table)
-		if err != nil {
-			fmt.Println("Error executing query:", err)
-			return
-		}
-		defer rows.Close()
-
-		// Если элемент существует, удаление элемента из карты.
-		delete(items, item.ID)
-		// Возвращение статуса "No Content" (204) в ответе.
-		w.WriteHeader(http.StatusNoContent)
-	} else {
-		// Если элемент с указанным ID не существует, возвращаем ошибку.
-		http.NotFound(w, r)
+	// Проверка существования элемента в базе данных
+	var count int
+	err := connFerst.QueryRow(context.Background(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
+	if err != nil {
+		fmt.Println("Error querying database:", err)
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
+		return
 	}
+
+	if count == 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Удаление элемента из базы данных
+	_, err = connFerst.Exec(context.Background(), "DELETE FROM "+Table+" WHERE id = $1", itemID)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		http.Error(w, "Error executing query", http.StatusInternalServerError)
+		return
+	}
+
+	// Возвращение статуса "No Content" (204) в ответе.
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // sendJSONResponse - устанавливает заголовки ответа и кодирует данные в формате JSON для отправки.
