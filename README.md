@@ -3,7 +3,11 @@
 ## `Сборка проекта:`
 1) `cd {путь до папки с проектом}/http/net_http/postgres_bd` -- в файле прописано, что БД расположена в хосте localhost на порту 6667
 2) `docker-compose -f postgresbd.yml up -d` -- создание и запуск докера с psql
+<<<<<<< HEAD
 3)  `psql -h localhost -p 6667 -U server < /home/virth/projects/http/net_http/postgres_bd/scrypt` -- создание БД `server` и таблицы `clients` (пароль для пользователя server `198416`)
+=======
+3)  Не обязательный пункт, программа создает БД автоматически. `psql -h localhost -p 6667 -U server < /home/virth/projects/http/net_http/postgres_bd/scrypt` -- создание БД `server` и таблицы `item` (пароль для пользователя server `198416`)
+>>>>>>> b5c571e10854e83f2f4f5ecf1f479aa2f98e4058
 4) `cd ..`
 5) `go mod init net_http`
 6) `go get github.com/google/uuid`
@@ -11,7 +15,11 @@
 8) `go build`
 
 ## `Запуск сервера:`
+<<<<<<< HEAD
 1) По команде `./net_http start [--host {host_name}] [--port {port_number}]` поднимется web-сервер доступный по адресу `http://{localhost или host_name}:{8080 или port_number}`
+=======
+1) По команде `./net_http start [--host {host_name}] [--port {port_number}] [--db {data_base_name}] [--table {table_name}]` поднимется web-сервер доступный по адресу `http://{localhost или host_name}:{8080 или port_number}`. По умолчанию программа обращается/создает БД server с таблицей item. Можно задать свои имена. Если таблица уже есть в системе, то программа будет работать с ней. Если нет, то программа сначало создаст ее.
+>>>>>>> b5c571e10854e83f2f4f5ecf1f479aa2f98e4058
 
 ## `Запуск клиента:`
 1) По команде `./net_http request [--host {host_name}] [--port {port_number}] {вложенная_команда}` поднимется клиент обращающийся к адрессу `http://{localhost или host_name}:{8080 или port_number}`.
@@ -23,9 +31,16 @@
   - `delete {id}` или `delete -id {id}` - DELETE /items/{id}
 
 ## `Пример команд для запуска сервера`
+<<<<<<< HEAD
 1) `./net_http start  ` 
 2) `./net_http start -host localhost -port 8080`
 3) `./net_http start -port 9090 -host localhost`
+=======
+1) `./net_http start  ` 
+2) `./net_http start -host localhost -port 8080`
+3)  `./net_http start -port 9090 -host localhost`
+3)  `./net_http start -port 9090 -host localhost -db users -table items`
+>>>>>>> b5c571e10854e83f2f4f5ecf1f479aa2f98e4058
 
 ## `Пример команд для клиента`
 1) `./net_http request create -name Diablo`
