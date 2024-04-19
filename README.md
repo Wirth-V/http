@@ -19,18 +19,18 @@
   - `delete {id}` или `delete -id {id}` - DELETE /items/{id}
 
 ## `Пример команд для запуска сервера`
-1) `./app start` 
-2) `./app start -host localhost -port 8080`
-3)  `./app start -port 9090 -host localhost`
-3)  `./app start -port 9090 -host localhost -db users -table items`
+1) `./net_http start` 
+2) `./net_http start -host localhost -port 8080`
+3)  `./net_http start -port 9090 -host localhost`
+3)  `./net_http start -port 9090 -host localhost -db users -table items`
 
 ## `Пример команд для клиента`
-1) `./app request create -name Diablo`
-2) `./app request list `
-3) `./app request -host localhost -port 9090 create -name User`
-4) `./app request -host localhost -port 9090 create User`
-5) `./app request -host localhost -port 9090 list`
-6) `./app request -host localhost -port 8080 get -id 2a58ab85`
-7) `./app request -host localhost -port 8080 update -name USER -id cd4aec7d`
-8) `./app request -host localhost -port 8080 update -name USER cd4aec7d`
-9) `./app request -host localhost -port 8080 delete -id 3390b10a`
+1) `./net_http request create -name Diablo`
+2) `./net_http request list `
+3) `./net_http request -host localhost -port 9090 create -name User`
+4) `./net_http request -host localhost -port 9090 create User`
+5) `./net_http request -host localhost -port 9090 list`
+6) `./net_http request -host localhost -port 8080 get -id 2a58ab85`
+7) `./net_http request -host localhost -port 8080 update -name USER -id cd4aec7d`
+8) `./net_http request -host localhost -port 8080 update -name USER cd4aec7d`
+9) `./net_http request -host localhost -port 8080 delete -id 3390b10a`
