@@ -1,4 +1,4 @@
-module net_http
+module app
 
 go 1.22.1
 
