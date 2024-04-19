@@ -1,9 +1,9 @@
 package main
 
 import (
-	"app/moduls"
 	"flag"
 	"fmt"
+	"net_http/modules"
 	"os"
 )
 
@@ -19,9 +19,9 @@ func main() {
 
 	switch os.Args[1] {
 	case "start":
-		moduls.Server(req, host, port, db, table) //запустит сервер
+		modules.Server(req, host, port, db, table) //запустит сервер
 	case "request":
-		moduls.Client(req, host, port) //запустит клиент
+		modules.Client(req, host, port) //запустит клиент
 	default:
 		fmt.Println("You flag is not correct:")
 		os.Exit(1)

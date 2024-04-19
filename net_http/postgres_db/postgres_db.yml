@@ -3,7 +3,7 @@ version: "3.6"
 services:
   postgresql:
     image: postgres:12.16
-    container_name: server_bd
+    container_name: server_db
     restart: always
     shm_size: 1g
     environment:
@@ -13,9 +13,3 @@ services:
       - POSTGRES_ROOT_PASSWORD=198416
     ports:
       - "6667:5432"
-    volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-    networks:
-      svacer:
-networks:
-  svacer:

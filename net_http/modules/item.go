@@ -1,4 +1,4 @@
-package moduls
+package modules
 
 type Item struct {
 	ID   string `json:"id"`

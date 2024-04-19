@@ -1,39 +1,6 @@
-/*
-1. Придумать название для консольного приложения;
-2. Приложение должно:
-2.1. По команде {название_приложения} start [--port {port_number}] поднимать web-сервер доступный по адресу http://localhost:{8080 или port_number}.
-Web-cервер будет хранить список структур
-type Item struct {
-  ID string
-  Name string
-}
+//данный модуль реазлизует клиентскую часть приложения
 
-Сервер должен обрабатывать следующие запросы:
-+--------------------------+--------------------------------------------------------+---------------------+-----------------------------+
-| URL                      | Описание                                               | json-формат запроса | json-формат ответа          |
-+==========================+========================================================+=====================+=============================+
-| GET /items/              | возвращает список item'ов                              | -                   | [{"id":"", "name":""}, ...] |
-| GET /items/{item_id}/    | возвращает item у которого ID == item_id               | -                   | {"id":"", "name":""}        |
-| POST /items/             | добавляет item со уникальным ID и переданным названием | {"name":"..."}      | {"id":"", "name":""}        |
-| PUT /items/{item_id}/    | изменяет название item'а с соответствующим ID          | {"name":"..."}      | - или {"id":"", "name":""}  |
-| DELETE /items/{item_id}/ | удаляет item                                           | -                   | -                           |
-+--------------------------+--------------------------------------------------------+---------------------+-----------------------------+
-
-Все запросы принимающие {item_id} должны возвращать NotFound (404) если item'а с таким id не существует.
-Название (name) не может быть пустым. Если пустое - BadRequest (400)
-Если всё хорошо OK (200). Можно также присылать Created (201) или NoContent (204) в определённых случаях
-
-2.2. По команде {название_приложения} request [--port {port_number}] {вложенная_команда} выполнять запросы в зависимости от вложенной команды:
-  - list - выполняет запрос GET /items/;
-  - get {id} - выполняет GET /items/{id};
-  - create --name {название} - выполняет POST /items/;
-  - update --name {название} {id} - PUT /items/{id};
-  - delete {id} - DELETE /items/{id};
-
-Результаты вызовов напечатать в вывод команд.
-*/
-
-package main
+package modules
 
 import (
 	"bytes"
@@ -44,55 +11,28 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"regexp"
 	"strings"
 )
 
-// Item представляет структуру данных для элементов списка.
-type Item struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
+func Client(req *flag.FlagSet, host *string, port *string) {
 
-// с префиксом сообщения (INFO или ERROR) и флаги, указывающие, какая
-// дополнительная информация будет добавлена.
-var InfoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	//Проверяет длинну и допустимость вводимых данных
+	if Sanitize(*host) && Length(*host) && Sanitize(*port) && Length(*port) {
+		return
+	}
 
-// Создаем логгер для записи сообщений об ошибках таким же образом, но используем stderr как
-// место для записи и используем флаг log.Lshortfile для включения в лог
-// названия файла и номера строки где обнаружилась ошибка.
-var ErrorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-
-func main() {
-
-	/*
-		nethttp.exe request --host localhost:9999 create --name test_name
-		nethttp.exe one --....
-		nethttp.exe two --...
-	*/
-
-	req := flag.NewFlagSet("request", flag.ExitOnError)
-	host := req.String("host", "localhost", "Host")
-	port := req.String("port", "8080", "Host")
-
-	req.Parse(os.Args[2:])
-
+	//Объяденяет хост и порт в одну строку
 	hostPort := strings.Join([]string{*host, *port}, ":")
 
-	fmt.Println("Host:", hostPort)
-	fmt.Println("Host:", sanitizeHost(hostPort))
-
-	fmt.Printf("\n")
-
+	//Определяет функционал вложенных команд
 	switch req.Arg(0) {
-
 	case "list":
 		list := flag.NewFlagSet("list", flag.ExitOnError)
 
 		list.Parse(req.Args()[1:])
 
 		fmt.Println("GET request:")
-		getItems("", sanitizeHost(hostPort))
+		getItems("", hostPort)
 
 	case "get":
 		list := flag.NewFlagSet("list", flag.ExitOnError)
@@ -100,14 +40,19 @@ func main() {
 
 		list.Parse(req.Args()[1:])
 
+		//Определяет поведение кода, когда вместо флага команды `-id {id}`
+		//вводится аргумент команды `{id}` без флага
 		if *nameList == "" {
 
 			if list.Args() != nil {
+
+				//ничего не ввили
 				if list.Arg(0) == "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
 				}
 
+				//ввели что-то лишнее
 				if list.Arg(1) != "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
@@ -121,19 +66,52 @@ func main() {
 
 		}
 
+		//Контроль длинны и символов в водимой строке
+		if Sanitize(*nameList) && Length(*nameList) {
+			return
+		}
+
 		fmt.Println("GET request:")
-		getItems(sanitizeInput(*nameList), sanitizeHost(hostPort))
+		getItems(*nameList, hostPort)
 
 	case "create":
 		creates := flag.NewFlagSet("create", flag.ExitOnError)
-		nameCreate := creates.String("name", "New Item", "Name")
+		nameCreate := creates.String("name", "", "Name")
 
 		creates.Parse(req.Args()[1:])
 
+		//Определяет поведение кода, когда вместо флага команды `-name {Имя}`
+		//вводится аргумент команды `{Имя}` без флага
+		if *nameCreate == "" {
+
+			if creates.Args() != nil {
+				//ничего не ввели
+				if creates.Arg(0) == "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				//ввели что-то лишнее
+				if creates.Arg(1) != "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				*nameCreate = creates.Arg(0)
+			} else {
+				fmt.Println("You flag is not correct:")
+				os.Exit(1)
+			}
+		}
+
+		//Контроль длинны и символов в водимой строке
+		if Sanitize(*nameCreate) && Length(*nameCreate) {
+			return
+		}
+
 		fmt.Println("POST request:")
-		fmt.Println(*nameCreate)
-		newItem := Item{Name: sanitizeInput(*nameCreate)}
-		createItem(newItem, sanitizeHost(hostPort))
+		newItem := Item{Name: *nameCreate}
+		createItem(newItem, hostPort)
 
 	case "update":
 		update := flag.NewFlagSet("update", flag.ExitOnError)
@@ -142,21 +120,20 @@ func main() {
 
 		update.Parse(req.Args()[1:])
 
-		fmt.Println(update.Args())
+		//Определяет поведение кода, когда вместо флагов команды `-name {Имя} -id {id}`
+		//вводится флаг и аргумент команды `-name {Имя} {id}`
 
-		fmt.Println(update.Arg(0))
-		fmt.Println(update.Arg(1))
-		fmt.Println(update.Arg(2))
-		fmt.Println(*nameUpdate)
-
+		//При этом игнарирование флага `-name' не допустимо
 		if *idName == "" {
 
 			if update.Args() != nil {
+				//ничего не ввели
 				if update.Arg(0) == "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
 				}
 
+				//ввели что-то лишнее
 				if update.Arg(1) != "" {
 					fmt.Println("You flag is not correct:")
 					os.Exit(1)
@@ -170,9 +147,12 @@ func main() {
 
 		}
 
-		fmt.Println("IS: " + *nameUpdate)
+		//проверка введенных значений
+		if Sanitize(*nameUpdate) && Sanitize(*idName) && Length(*nameUpdate) && Length(*idName) {
+			return
+		}
 
-		newUpdat := Item{Name: *nameUpdate} //sanitaze
+		newUpdat := Item{ID: *idName, Name: *nameUpdate}
 
 		fmt.Println(newUpdat)
 
@@ -181,12 +161,40 @@ func main() {
 
 	case "delete":
 		delete := flag.NewFlagSet("delete", flag.ExitOnError)
-		idDelete := delete.String("id", "1", "ID of delete")
+		idDelete := delete.String("id", "", "ID of delete")
 
 		delete.Parse(req.Args()[1:])
 
+		//Определяет поведение кода, когда вместо флага команды `-id {id}`
+		//вводится аргумент команды `{id}` без флага
+		if *idDelete == "" {
+
+			if delete.Args() != nil {
+				//ничего не ввели
+				if delete.Arg(0) == "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+				//ввели что-то лишнее
+				if delete.Arg(1) != "" {
+					fmt.Println("You flag is not correct:")
+					os.Exit(1)
+				}
+
+				*idDelete = delete.Arg(0)
+			} else {
+				fmt.Println("You flag is not correct:")
+				os.Exit(1)
+			}
+		}
+
+		//проверка введенных значений
+		if Sanitize(*idDelete) && Length(*idDelete) {
+			return
+		}
+
 		fmt.Println("DELETE request:")
-		deleteItem(sanitizeInput(*idDelete), sanitizeHost(hostPort))
+		deleteItem(*idDelete, hostPort)
 
 	default:
 		fmt.Println("You flag is not correct:")
@@ -203,7 +211,7 @@ func getItems(nameList string, hostPort string) {
 	if nameList == "" {
 		resp, err = http.Get(fmt.Sprintf("http://%s/items/", hostPort))
 	} else {
-		resp, err = http.Get(fmt.Sprintf("http://%s/items/%s", hostPort, nameList))
+		resp, err = http.Get(fmt.Sprintf("http://%s/items/%s/", hostPort, nameList))
 	}
 	if err != nil {
 		fmt.Println("Ошибка при отправке GET-запроса:", err)
@@ -265,9 +273,9 @@ func updateItem(itemID string, updatedItem Item, hostPort string) {
 		return
 	}
 
-	// Создание клиента для отправки PUT-запроса.
+	// Создание клиента для отправки PUT-запроса. bytes.NewBuffer(itemJSON)
 	client := &http.Client{}
-	req, err := http.NewRequest("PUT", fmt.Sprintf("http://%s/items/%s", hostPort, itemID), bytes.NewBuffer(itemJSON))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("http://%s/items/%s/", hostPort, itemID), bytes.NewBuffer(itemJSON))
 	if err != nil {
 		fmt.Println("Ошибка при создании PUT-запроса:", err)
 		return
@@ -282,6 +290,16 @@ func updateItem(itemID string, updatedItem Item, hostPort string) {
 	}
 	defer resp.Body.Close()
 
+	// Читаем и конвертируем тело ответа в байты
+	bytesResp, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Выводим содержимое тела ответа
+	fmt.Println(string(bytesResp))
+
 	// Обработка ответа сервера.
 	printResponse(resp)
 }
@@ -290,7 +308,7 @@ func updateItem(itemID string, updatedItem Item, hostPort string) {
 func deleteItem(itemID string, hostPort string) {
 	// Создание клиента для отправки DELETE-запроса.
 	client := &http.Client{}
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://%s/items/%s", hostPort, itemID), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://%s/items/%s/", hostPort, itemID), nil)
 	if err != nil {
 		fmt.Println("Ошибка при создании DELETE-запроса:", err)
 		return
@@ -333,23 +351,4 @@ func printResponse(resp *http.Response) {
 	//fmt.Printf("Response Body: %s\n", bodyBytes) Переделай, или через readAll или через цыкл, так же разбери потоки
 	fmt.Printf("---------------\n\n")
 
-}
-
-//ниже реализованы 2 подхода к экранированию строк, через пакет regexp и через работу со строками
-
-// sanitizeHost очищает строку Host от специальных символов
-func sanitizeHost(input string) string {
-	var result strings.Builder
-	for _, char := range input {
-		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') || (char == ':') || (char == '_') {
-			result.WriteRune(char)
-		}
-	}
-	return result.String()
-}
-
-// sanitizeInput очищает строку от специальных символов
-func sanitizeInput(input string) string {
-	reg := regexp.MustCompile("[^a-zA-Z0-9]+")
-	return reg.ReplaceAllString(input, "")
 }
