@@ -44,46 +44,31 @@ func db_control(connString string, Table string) error {
 		if err != nil {
 			return err
 		}
+	}
 
-		// Установка подключения к созданной бд
-		connConfig.Database = dbname
-		conn_db, err = pgx.ConnectConfig(context.Background(), connConfig)
-		if err != nil {
-			return err
-		}
-		defer conn_db.Close(context.Background())
+	connConfig.Database = dbname
+	conn_table, err := pgx.ConnectConfig(context.Background(), connConfig)
+	if err != nil {
+		return err
+	}
+	defer conn_table.Close(context.Background())
+
+	var exists_table bool
+	//Выполняется запрос к системной таблице pg_database, чтобы проверить существование таблицы
+	err = conn_table.QueryRow(context.Background(), "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", Table).Scan(&exists_table)
+	//conn.QueryRow Выполнения запроса о существовании, возвращает true, если существует, или false, если нет.
+	if err != nil {
+		return err
+	}
+
+	if !exists_table {
 
 		// Создание таблицы
-		_, err = conn_db.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8) NOT NULL, name VARCHAR(30) NOT NULL)")
-		if err != nil {
+		_, err = conn_table.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8) NOT NULL, name VARCHAR(30) NOT NULL)")
+		if err != nil { //"CREATE TABLE "+Table+"(id VARCHAR(8) NOT NULL, name VARCHAR(30) NOT NULL)"
 			return err
 		}
-
-	} else {
-		connConfig.Database = dbname
-		conn_table, err := pgx.ConnectConfig(context.Background(), connConfig)
-		if err != nil {
-			return err
-		}
-		defer conn_table.Close(context.Background())
-
-		var exists_table bool
-		//Выполняется запрос к системной таблице pg_database, чтобы проверить существование бд
-		err = conn_table.QueryRow(context.Background(), "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", Table).Scan(&exists_table)
-		//conn.QueryRow Выполнения запроса о существовании, возвращает true, если существует, или false, если нет.
-		if err != nil {
-			return err
-		}
-
-		if !exists_table {
-
-			// Создание таблицы
-			_, err = conn_table.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8) NOT NULL, name VARCHAR(30)) NOT NULL")
-			if err != nil {
-				return err
-			}
-		}
-
 	}
+
 	return nil
 }
