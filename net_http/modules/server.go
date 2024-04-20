@@ -80,6 +80,7 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 	var items []*Item
 	var id string
 	var name string
+
 	// Итерация по результатам запроса и добавление данных в массив items
 	for rows.Next() {
 		err := rows.Scan(&id, &name)
@@ -91,6 +92,9 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 		items = append(items, &Item{ID: id, Name: name})
 	}
 
+	if items == nil {
+		items = append(items, &Item{ID: "", Name: ""})
+	}
 	// Если в пути обращения GET - "/items/" , возвращаем список всех элементов.
 	sendJSONResponse(w, http.StatusOK, items)
 }
