@@ -54,7 +54,7 @@ func db_control(connString string, Table string) error {
 		defer conn_db.Close(context.Background())
 
 		// Создание таблицы
-		_, err = conn_db.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8), name VARCHAR(30))")
+		_, err = conn_db.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8) NOT NULL, name VARCHAR(30) NOT NULL)")
 		if err != nil {
 			return err
 		}
@@ -68,7 +68,7 @@ func db_control(connString string, Table string) error {
 		defer conn_table.Close(context.Background())
 
 		var exists_table bool
-		//Выполняется запрос к системной таблице pg_database, чтобы проверить существует ли бд
+		//Выполняется запрос к системной таблице pg_database, чтобы проверить существование бд
 		err = conn_table.QueryRow(context.Background(), "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", Table).Scan(&exists_table)
 		//conn.QueryRow Выполнения запроса о существовании, возвращает true, если существует, или false, если нет.
 		if err != nil {
@@ -78,7 +78,7 @@ func db_control(connString string, Table string) error {
 		if !exists_table {
 
 			// Создание таблицы
-			_, err = conn_table.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8), name VARCHAR(30))")
+			_, err = conn_table.Exec(context.Background(), "CREATE TABLE "+Table+"(id VARCHAR(8) NOT NULL, name VARCHAR(30)) NOT NULL")
 			if err != nil {
 				return err
 			}

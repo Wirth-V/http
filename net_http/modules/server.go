@@ -16,9 +16,14 @@ import (
 var connFerst *pgx.Conn
 var Table string
 
-func Server(req *flag.FlagSet, host *string, port *string, db *string, table *string) {
-	connString := "postgres://server:198416@localhost:6667/" + *db
-	Table = *table
+func Server(req *flag.FlagSet, host string, port string, db string, table string) {
+	if req == nil {
+		fmt.Println("Attempt to pass nil to the 'req' variable")
+		return
+	}
+
+	connString := "postgres://server:198416@localhost:6667/" + db
+	Table = table
 
 	err := db_control(connString, Table)
 	if err != nil {
@@ -38,7 +43,7 @@ func Server(req *flag.FlagSet, host *string, port *string, db *string, table *st
 	defer connFerst.Close(context.Background())
 
 	InfoLog.Println("Сервер запущен.")
-	InfoLog.Printf("Хост:%s Порт:%s", *host, *port)
+	InfoLog.Printf("Хост:%s Порт:%s", host, port)
 
 	// Регистрация обработчика запросов для пути "/items/".
 	http.HandleFunc("GET /items/", handleGET)
@@ -52,7 +57,7 @@ func Server(req *flag.FlagSet, host *string, port *string, db *string, table *st
 	http.HandleFunc("DELETE /items/{id}/", handleDELETE)
 
 	// Запуск веб-сервера на порту 8080.
-	err_bd := http.ListenAndServe(strings.Join([]string{*host, *port}, ":"), nil)
+	err_bd := http.ListenAndServe(strings.Join([]string{host, port}, ":"), nil)
 	if err_bd != nil {
 		ErrorLog.Fatal("Ошибка запуска сервера:", err_bd)
 	}

@@ -14,15 +14,19 @@ import (
 	"strings"
 )
 
-func Client(req *flag.FlagSet, host *string, port *string) {
+func Client(req *flag.FlagSet, host string, port string) {
+	if req == nil {
+		fmt.Println("Attempt to pass nil to the 'req' variable")
+		return
+	}
 
 	//Проверяет длинну и допустимость вводимых данных
-	if Sanitize(*host) && Length(*host) && Sanitize(*port) && Length(*port) {
+	if Sanitize(host) && Length(host) && Sanitize(port) && Length(port) {
 		return
 	}
 
 	//Объяденяет хост и порт в одну строку
-	hostPort := strings.Join([]string{*host, *port}, ":")
+	hostPort := strings.Join([]string{host, port}, ":")
 
 	//Определяет функционал вложенных команд
 	switch req.Arg(0) {
