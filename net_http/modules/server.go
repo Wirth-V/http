@@ -22,9 +22,7 @@ func Server(req *flag.FlagSet, host string, port string, username_bd string, pas
 		return fmt.Errorf("ettempt to pass nil to the 'req' variable")
 
 	}
-	//// urlExample := "postgres://username:password@localhost:5432/database_name"
-	// postgres://server:198416@localhost:6667/
-	// host=localhost port=6667 user=server dbname=server password=198416 sslmode=disable
+
 	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", username_bd, password_bd, host_bd, port_bd, db)
 	Table = table
 
@@ -243,7 +241,7 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 
 // sendJSONResponse - устанавливает заголовки ответа и кодирует данные в формате JSON для отправки.
 func sendJSONResponse(w http.ResponseWriter, data interface{}) {
-	// Установка заголовка "Content-Type" как "application/json".
+
 	w.Header().Set("Content-Type", "application/json")
 
 	// Кодирование данных в формат JSON и отправка в тело ответа.

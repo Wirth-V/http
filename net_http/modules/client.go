@@ -219,7 +219,7 @@ func getItems(nameList string, hostPort string) error {
 	if err != nil {
 		return fmt.Errorf("error sending the GET request: %v", err)
 	}
-	defer resp.Body.Close() // всегда сначало дефери, а потом уже что-то делай
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("connection problems, response code: %v", resp.StatusCode)
@@ -259,7 +259,6 @@ func createItem(item Item, hostPort string) error {
 		return fmt.Errorf("connection problems, response code: %v", resp.StatusCode)
 	}
 
-	// Читаем и конвертируем тело ответа в байты
 	bytesResp, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -267,7 +266,6 @@ func createItem(item Item, hostPort string) error {
 
 	ResponseLog.Println(string(bytesResp))
 
-	// Обработка ответа сервера.
 	err = printResponse(resp)
 	if err != nil {
 		return fmt.Errorf("error processing the server response: %v", err)
@@ -360,7 +358,6 @@ func printResponse(resp *http.Response) error {
 
 	// Вывод информации о статусе и теле ответа.
 	fmt.Printf("Status Code: %d\n", resp.StatusCode)
-	//fmt.Printf("Response Body: %s\n", bodyBytes) Переделай, или через readAll или через цыкл, так же разбери потоки
 	fmt.Printf("---------------\n\n")
 
 	return nil
