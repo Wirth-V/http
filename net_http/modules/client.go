@@ -8,41 +8,41 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
-	"os"
 	"strings"
 )
 
-func Client(req *flag.FlagSet, host string, port string) {
+func Client(req *flag.FlagSet, host string, port string) error {
 	if req == nil {
-		fmt.Println("Attempt to pass nil to the 'req' variable")
-		return
+		return fmt.Errorf("attempt to pass nil to the 'req' variable")
 	}
 
 	//Проверяет длинну и допустимость вводимых данных
-	if Sanitize(host) && Length(host) && Sanitize(port) && Length(port) {
-		return
+	err := check(host, port)
+	if err != nil {
+		return err
 	}
 
-	//Объяденяет хост и порт в одну строку
 	hostPort := strings.Join([]string{host, port}, ":")
 
 	//Определяет функционал вложенных команд
-	switch req.Arg(0) {
+	switch req.Arg(Zero) {
 	case "list":
 		list := flag.NewFlagSet("list", flag.ExitOnError)
 
-		list.Parse(req.Args()[1:])
+		list.Parse(req.Args()[One:])
 
-		fmt.Println("GET request:")
-		getItems("", hostPort)
+		InfoLog.Println("GET request:")
+		err := getItems("", hostPort)
+		if err != nil {
+			return err
+		}
 
 	case "get":
 		list := flag.NewFlagSet("list", flag.ExitOnError)
 		nameList := list.String("id", "", "ID")
 
-		list.Parse(req.Args()[1:])
+		list.Parse(req.Args()[One:])
 
 		//Определяет поведение кода, когда вместо флага команды `-id {id}`
 		//вводится аргумент команды `{id}` без флага
@@ -51,123 +51,123 @@ func Client(req *flag.FlagSet, host string, port string) {
 			if list.Args() != nil {
 
 				//ничего не ввили
-				if list.Arg(0) == "" {
-					fmt.Println("You flag is not correct:")
-					os.Exit(1)
+				if list.Arg(Zero) == "" {
+					return fmt.Errorf("you flag is not correct: the flag was not entered")
+
 				}
 
 				//ввели что-то лишнее
-				if list.Arg(1) != "" {
-					fmt.Println("You flag is not correct:")
-					os.Exit(1)
+				if list.Arg(One) != "" {
+					return fmt.Errorf("you flag is not correct: an extra flag was introduced")
+
 				}
 
-				*nameList = list.Arg(0)
+				*nameList = list.Arg(Zero)
 			} else {
-				fmt.Println("You flag is not correct:")
-				os.Exit(1)
+				return fmt.Errorf("you flag is not correct")
 			}
 
 		}
 
-		//Контроль длинны и символов в водимой строке
-		if Sanitize(*nameList) && Length(*nameList) {
-			return
+		err := check(*nameList)
+		if err != nil {
+			return err
 		}
 
-		fmt.Println("GET request:")
-		getItems(*nameList, hostPort)
+		InfoLog.Println("GET request:")
+		err = getItems(*nameList, hostPort)
+		if err != nil {
+			return err
+		}
 
 	case "create":
 		creates := flag.NewFlagSet("create", flag.ExitOnError)
 		nameCreate := creates.String("name", "", "Name")
 
-		creates.Parse(req.Args()[1:])
+		creates.Parse(req.Args()[One:])
 
-		//Определяет поведение кода, когда вместо флага команды `-name {Имя}`
-		//вводится аргумент команды `{Имя}` без флага
+		// Определяет поведение кода, когда вместо флага команды `-name {Имя}`
+		// вводится аргумент команды `{Имя}` без флага
 		if *nameCreate == "" {
 
 			if creates.Args() != nil {
 				//ничего не ввели
-				if creates.Arg(0) == "" {
-					fmt.Println("You flag is not correct:")
-					os.Exit(1)
+				if creates.Arg(Zero) == "" {
+					return fmt.Errorf("you command is not correct: the flag was not entered")
+
 				}
 
 				//ввели что-то лишнее
-				if creates.Arg(1) != "" {
-					fmt.Println("You flag is not correct:")
-					os.Exit(1)
+				if creates.Arg(One) != "" {
+					return fmt.Errorf("you command is not correct: an extra flag was introduced")
 				}
 
-				*nameCreate = creates.Arg(0)
+				*nameCreate = creates.Arg(Zero)
 			} else {
-				fmt.Println("You flag is not correct:")
-				os.Exit(1)
+				return fmt.Errorf("you command is not correct")
 			}
 		}
 
-		//Контроль длинны и символов в водимой строке
-		if Sanitize(*nameCreate) && Length(*nameCreate) {
-			return
+		err := check(*nameCreate)
+		if err != nil {
+			return err
 		}
 
-		fmt.Println("POST request:")
+		InfoLog.Println("POST request:")
 		newItem := Item{Name: *nameCreate}
-		createItem(newItem, hostPort)
+		err = createItem(newItem, hostPort)
+		if err != nil {
+			return err
+		}
 
 	case "update":
 		update := flag.NewFlagSet("update", flag.ExitOnError)
 		nameUpdate := update.String("name", "New Item", "Name")
 		idName := update.String("id", "", "Name")
 
-		update.Parse(req.Args()[1:])
+		update.Parse(req.Args()[One:])
 
 		//Определяет поведение кода, когда вместо флагов команды `-name {Имя} -id {id}`
 		//вводится флаг и аргумент команды `-name {Имя} {id}`
-
 		//При этом игнарирование флага `-name' не допустимо
 		if *idName == "" {
 
 			if update.Args() != nil {
 				//ничего не ввели
-				if update.Arg(0) == "" {
-					fmt.Println("You flag is not correct:")
-					os.Exit(1)
+				if update.Arg(Zero) == "" {
+					return fmt.Errorf("you command is not correct: the flag was not entered")
 				}
 
 				//ввели что-то лишнее
-				if update.Arg(1) != "" {
-					fmt.Println("You flag is not correct:")
-					os.Exit(1)
+				if update.Arg(One) != "" {
+					return fmt.Errorf("you command is not correct: an extra flag was introduced")
 				}
 
-				*idName = update.Arg(0)
+				*idName = update.Arg(Zero)
 			} else {
-				fmt.Println("You flag is not correct:")
-				os.Exit(1)
+				return fmt.Errorf("you command is not correct")
 			}
 
 		}
 
-		//проверка введенных значений
-		if Sanitize(*nameUpdate) && Sanitize(*idName) && Length(*nameUpdate) && Length(*idName) {
-			return
+		err := check(*nameUpdate, *idName)
+		if err != nil {
+			return err
 		}
 
 		newUpdat := Item{ID: *idName, Name: *nameUpdate}
 
-		fmt.Println(newUpdat)
-
-		fmt.Println("PUT request:")
-		updateItem(*idName, newUpdat, hostPort)
+		InfoLog.Println("PUT request:")
+		err = updateItem(*idName, newUpdat, hostPort)
+		if err != nil {
+			return err
+		}
 
 	case "delete":
 		delete := flag.NewFlagSet("delete", flag.ExitOnError)
 		idDelete := delete.String("id", "", "ID of delete")
 
-		delete.Parse(req.Args()[1:])
+		delete.Parse(req.Args()[One:])
 
 		//Определяет поведение кода, когда вместо флага команды `-id {id}`
 		//вводится аргумент команды `{id}` без флага
@@ -175,42 +175,41 @@ func Client(req *flag.FlagSet, host string, port string) {
 
 			if delete.Args() != nil {
 				//ничего не ввели
-				if delete.Arg(0) == "" {
-					fmt.Println("You flag is not correct:")
-					os.Exit(1)
+				if delete.Arg(Zero) == "" {
+					return fmt.Errorf("you command is not correct: the flag was not entered")
 				}
 				//ввели что-то лишнее
-				if delete.Arg(1) != "" {
-					fmt.Println("You flag is not correct:")
-					os.Exit(1)
+				if delete.Arg(One) != "" {
+					return fmt.Errorf("you command is not correct: an extra flag was introduced")
 				}
 
-				*idDelete = delete.Arg(0)
+				*idDelete = delete.Arg(Zero)
 			} else {
-				fmt.Println("You flag is not correct:")
-				os.Exit(1)
+				return fmt.Errorf("you command is not correct")
 			}
 		}
 
-		//проверка введенных значений
-		if Sanitize(*idDelete) && Length(*idDelete) {
-			return
+		err := check(*idDelete)
+		if err != nil {
+			return err
 		}
 
-		fmt.Println("DELETE request:")
-		deleteItem(*idDelete, hostPort)
+		InfoLog.Println("DELETE request:")
+		err = deleteItem(*idDelete, hostPort)
+		if err != nil {
+			return err
+		}
 
 	default:
-		fmt.Println("You flag is not correct:")
-		os.Exit(1)
+		return fmt.Errorf("you flag is not correct")
 	}
+	return nil
 }
 
-// getItems отправляет GET-запрос на сервер для получения списка элементов.
-func getItems(nameList string, hostPort string) {
-	//var control string = ""
+func getItems(nameList string, hostPort string) error {
 	var resp *http.Response
 	var err error
+
 	// Отправка GET-запроса на сервер по указанному URL.
 	if nameList == "" {
 		resp, err = http.Get(fmt.Sprintf("http://%s/items/", hostPort))
@@ -218,141 +217,157 @@ func getItems(nameList string, hostPort string) {
 		resp, err = http.Get(fmt.Sprintf("http://%s/items/%s/", hostPort, nameList))
 	}
 	if err != nil {
-		fmt.Println("Ошибка при отправке GET-запроса:", err)
-		return
+		return fmt.Errorf("error sending the GET request: %v", err)
 	}
 	defer resp.Body.Close() // всегда сначало дефери, а потом уже что-то делай
 
+	if resp.StatusCode > Status {
+		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
+	}
+
+	// проверяем код ответа
+	if resp.StatusCode > Status {
+		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
+	}
+
 	// Читаем и конвертируем тело ответа в байты
 	bytesResp, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Println(err)
-		return
+		return err
+
 	}
 
-	// Выводим содержимое тела ответа
-	fmt.Println(string(bytesResp))
+	ResponseLog.Println(string(bytesResp))
 
 	// Обработка ответа сервера.
-	printResponse(resp)
-}
-
-// createItem отправляет POST-запрос на сервер для создания нового элемента.
-func createItem(item Item, hostPort string) {
-	// Кодирование структуры Item в JSON.
-	itemJSON, err := json.Marshal(item)
+	err = printResponse(resp)
 	if err != nil {
-		fmt.Println("Ошибка при кодировании JSON:", err)
-		return
+		return fmt.Errorf("error Processing the server response: %v", err)
 	}
 
-	// Отправка POST-запроса на сервер с данными в формате JSON.
+	return nil
+}
+
+func createItem(item Item, hostPort string) error {
+	itemJSON, err := json.Marshal(item)
+	if err != nil {
+		return fmt.Errorf("error encoding JSON: %v", err)
+	}
+
 	resp, err := http.Post(fmt.Sprintf("http://%s/items/", hostPort), "application/json", strings.NewReader(string(itemJSON)))
 	if err != nil {
-		fmt.Println("Ошибка при отправке POST-запроса:", err)
-		return
+		return fmt.Errorf("error when sending a POST request: %v", err)
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode > Status {
+		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
+	}
+
 	// Читаем и конвертируем тело ответа в байты
 	bytesResp, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Println(err)
-		return
+		return err
 	}
 
-	// Выводим содержимое тела ответа
-	fmt.Println(string(bytesResp))
+	ResponseLog.Println(string(bytesResp))
 
 	// Обработка ответа сервера.
-	printResponse(resp)
+	err = printResponse(resp)
+	if err != nil {
+		return fmt.Errorf("error processing the server response: %v", err)
+	}
+
+	return nil
 }
 
-// updateItem отправляет PUT-запрос на сервер для обновления элемента с указанным ID.
-func updateItem(itemID string, updatedItem Item, hostPort string) {
-	// Кодирование обновленной структуры Item в JSON.
+func updateItem(itemID string, updatedItem Item, hostPort string) error {
 	itemJSON, err := json.Marshal(updatedItem)
 	if err != nil {
-		fmt.Println("Ошибка при кодировании JSON:", err)
-		return
+		return fmt.Errorf("error encoding JSON: %v", err)
 	}
 
 	// Создание клиента для отправки PUT-запроса. bytes.NewBuffer(itemJSON)
 	client := &http.Client{}
 	req, err := http.NewRequest("PUT", fmt.Sprintf("http://%s/items/%s/", hostPort, itemID), bytes.NewBuffer(itemJSON))
 	if err != nil {
-		fmt.Println("Ошибка при создании PUT-запроса:", err)
-		return
+		return fmt.Errorf("error creating a PUT request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	// Отправка PUT-запроса на сервер.
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("Ошибка при отправке PUT-запроса:", err)
-		return
+		return fmt.Errorf("error sending the PUT request: %v", err)
 	}
 	defer resp.Body.Close()
 
-	// Читаем и конвертируем тело ответа в байты
-	bytesResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err)
-		return
+	// проверяем код ответа
+	if resp.StatusCode > Status {
+		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
 	}
 
-	// Выводим содержимое тела ответа
-	fmt.Println(string(bytesResp))
+	bytesResp, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 
-	// Обработка ответа сервера.
-	printResponse(resp)
+	ResponseLog.Println(string(bytesResp))
+
+	err = printResponse(resp)
+	if err != nil {
+		return fmt.Errorf("error processing the server response: %v", err)
+	}
+
+	return nil
 }
 
-// deleteItem отправляет DELETE-запрос на сервер для удаления элемента с указанным ID.
-func deleteItem(itemID string, hostPort string) {
-	// Создание клиента для отправки DELETE-запроса.
+func deleteItem(itemID string, hostPort string) error {
 	client := &http.Client{}
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://%s/items/%s/", hostPort, itemID), nil)
 	if err != nil {
-		fmt.Println("Ошибка при создании DELETE-запроса:", err)
-		return
+		return fmt.Errorf("error creating a DELETE request: %v", err)
 	}
 
-	// Отправка DELETE-запроса на сервер.
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("Ошибка при отправке DELETE-запроса:", err)
-		return
+		return fmt.Errorf("error sending the DELETE request: %v", err)
 	}
 
-	// Читаем и конвертируем тело ответа в байты
+	// проверяем код ответа
+	if resp.StatusCode > Status {
+		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
+	}
+
 	bytesResp, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Println(err)
-		return
+		return err
 	}
 	defer resp.Body.Close()
 
-	// Выводим содержимое тела ответа
-	fmt.Println(string(bytesResp))
+	ResponseLog.Println(string(bytesResp))
 
-	// Обработка ответа сервера.
-	printResponse(resp)
+	err = printResponse(resp)
+	if err != nil {
+		return fmt.Errorf("error processing the server response: %v", err)
+	}
+
+	return nil
 }
 
 // printResponse выводит информацию о статусе и теле ответа сервера.
-func printResponse(resp *http.Response) {
+func printResponse(resp *http.Response) error {
 	// Чтение тела ответа в байтовый массив.
 	var bodyBytes []byte
 	_, err := resp.Body.Read(bodyBytes)
 	if err != nil && err != io.EOF {
-		fmt.Println("Ошибка при чтении ответа:", err)
-		return
+		return fmt.Errorf("error reading the response: %v", err)
 	}
 
 	// Вывод информации о статусе и теле ответа.
 	fmt.Printf("Status Code: %d\n", resp.StatusCode)
 	//fmt.Printf("Response Body: %s\n", bodyBytes) Переделай, или через readAll или через цыкл, так же разбери потоки
 	fmt.Printf("---------------\n\n")
+
+	return nil
 
 }

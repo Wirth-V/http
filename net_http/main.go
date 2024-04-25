@@ -2,28 +2,44 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net_http/modules"
 	"os"
 )
 
+const (
+	One  int = 1
+	Two  int = 2
+	Size int = 21
+)
+
 func main() {
 
-	req := flag.NewFlagSet(os.Args[1], flag.ExitOnError)
+	if len(os.Args) < Two {
+		modules.ErrorLog.Println("You comand is not correct: there are not enough commands")
+		os.Exit(1)
+	}
+
+	req := flag.NewFlagSet(os.Args[One], flag.ExitOnError)
 	host := req.String("host", "localhost", "Host")
 	port := req.String("port", "8080", "Host")
 	db := req.String("db", "server", "db")
 	table := req.String("table", "item", "table")
 
-	req.Parse(os.Args[2:])
+	req.Parse(os.Args[Two:])
 
-	switch os.Args[1] {
+	var err error
+
+	switch os.Args[One] {
 	case "start":
-		modules.Server(req, *host, *port, *db, *table) //запустит сервер
+		err = modules.Server(req, *host, *port, *db, *table)
 	case "request":
-		modules.Client(req, *host, *port) //запустит клиент
+		err = modules.Client(req, *host, *port)
 	default:
-		fmt.Println("You flag is not correct:")
+		modules.ErrorLog.Println("you comand is not correct: non-direct command")
 		os.Exit(1)
+	}
+
+	if err != nil {
+		modules.ErrorLog.Println(err)
 	}
 }
