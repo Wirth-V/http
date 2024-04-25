@@ -17,13 +17,15 @@ import (
 var connFerst *pgx.Conn
 var Table string
 
-func Server(req *flag.FlagSet, host string, port string, db string, table string) error {
+func Server(req *flag.FlagSet, host string, port string, username_bd string, password_bd string, host_bd string, port_bd string, db string, table string) error {
 	if req == nil {
 		return fmt.Errorf("ettempt to pass nil to the 'req' variable")
 
 	}
-
-	connString := "postgres://server:198416@localhost:6667/" + db
+	//// urlExample := "postgres://username:password@localhost:5432/database_name"
+	// postgres://server:198416@localhost:6667/
+	// host=localhost port=6667 user=server dbname=server password=198416 sslmode=disable
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", username_bd, password_bd, host_bd, port_bd, db)
 	Table = table
 
 	// Создание и проверка наличия бд и таблицы, указанных пользователем

@@ -22,6 +22,11 @@ func main() {
 	req := flag.NewFlagSet(os.Args[One], flag.ExitOnError)
 	host := req.String("host", "localhost", "Host")
 	port := req.String("port", "8080", "Host")
+	username_db := req.String("user_db", "server", "db")
+	password_db := req.String("password_db", "198416", "db")
+	host_db := req.String("host_db", "localhost", "db")
+	port_db := req.String("port_db", "6667", "db")
+
 	db := req.String("db", "server", "db")
 	table := req.String("table", "item", "table")
 
@@ -31,7 +36,7 @@ func main() {
 
 	switch os.Args[One] {
 	case "start":
-		err = modules.Server(req, *host, *port, *db, *table)
+		err = modules.Server(req, *host, *port, *username_db, *password_db, *host_db, *port_db, *db, *table)
 	case "request":
 		err = modules.Client(req, *host, *port)
 	default:
