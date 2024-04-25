@@ -93,7 +93,7 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 		items = append(items, &Item{ID: "", Name: ""})
 	}
 	// Возвращаем список всех элементов.
-	sendJSONResponse(w, http.StatusOK, items)
+	sendJSONResponse(w, items)
 }
 
 func handleGETid(w http.ResponseWriter, r *http.Request) {
@@ -104,7 +104,7 @@ func handleGETid(w http.ResponseWriter, r *http.Request) {
 	// Запрос данных из таблицы по ID
 	var name string
 
-	err := connFerst.QueryRow(context.Background(), "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(&name)
+	err := connFerst.QueryRow(r.Context(), "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(&name)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			http.NotFound(w, r)
@@ -115,7 +115,7 @@ func handleGETid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendJSONResponse(w, http.StatusOK, &Item{ID: itemID, Name: name})
+	sendJSONResponse(w, &Item{ID: itemID, Name: name})
 
 }
 
@@ -143,14 +143,14 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 	// Генерация уникального ID и добавление нового элемента в карту.
 	newItem.ID = GenerateID()
 
-	_, err = connFerst.Exec(context.Background(), "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
+	_, err = connFerst.Exec(r.Context(), "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
 	if err != nil {
 		ErrorLog.Println("error executing query,", err)
 		http.Error(w, "error executing query", http.StatusInternalServerError)
 		return
 	}
 
-	sendJSONResponse(w, http.StatusCreated, newItem)
+	sendJSONResponse(w, newItem)
 }
 
 func handlePUT(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +180,7 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 
 	// Проверка существования элемента в базе данных
 	var count int
-	err = connFerst.QueryRow(context.Background(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
+	err = connFerst.QueryRow(r.Context(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
 	if err != nil {
 		ErrorLog.Println("error querying database:", err)
 		http.Error(w, "error querying database", http.StatusInternalServerError)
@@ -193,14 +193,14 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Обновление данных элемента в базе данных
-	_, err = connFerst.Exec(context.Background(), "UPDATE "+Table+" SET name = $1 WHERE id = $2", updatedItem.Name, itemID)
+	_, err = connFerst.Exec(r.Context(), "UPDATE "+Table+" SET name = $1 WHERE id = $2", updatedItem.Name, itemID)
 	if err != nil {
 		ErrorLog.Println("error executing query:", err)
 		http.Error(w, "error executing query", http.StatusInternalServerError)
 		return
 	}
 
-	sendJSONResponse(w, http.StatusOK, &Item{ID: itemID, Name: updatedItem.Name})
+	sendJSONResponse(w, &Item{ID: itemID, Name: updatedItem.Name})
 
 }
 
@@ -218,7 +218,7 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 
 	// Проверка существования элемента в базе данных
 	var count int
-	err = connFerst.QueryRow(context.Background(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
+	err = connFerst.QueryRow(r.Context(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
 	if err != nil {
 		ErrorLog.Println("error querying database: ", err)
 		http.Error(w, "error querying database", http.StatusInternalServerError)
@@ -231,7 +231,7 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Удаление элемента из базы данных
-	_, err = connFerst.Exec(context.Background(), "DELETE FROM "+Table+" WHERE id = $1", itemID)
+	_, err = connFerst.Exec(r.Context(), "DELETE FROM "+Table+" WHERE id = $1", itemID)
 	if err != nil {
 		ErrorLog.Println("error executing query:", err)
 		http.Error(w, "error executing query", http.StatusInternalServerError)
@@ -240,11 +240,9 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 }
 
 // sendJSONResponse - устанавливает заголовки ответа и кодирует данные в формате JSON для отправки.
-func sendJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
+func sendJSONResponse(w http.ResponseWriter, data interface{}) {
 	// Установка заголовка "Content-Type" как "application/json".
 	w.Header().Set("Content-Type", "application/json")
-	// Установка кода состояния ответа.
-	w.WriteHeader(statusCode)
 
 	// Кодирование данных в формат JSON и отправка в тело ответа.
 	err := json.NewEncoder(w).Encode(data)

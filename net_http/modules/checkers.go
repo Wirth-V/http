@@ -9,12 +9,9 @@ import (
 func check(s ...string) error {
 	var sb strings.Builder
 	var control int = Zero
+	re := regexp.MustCompile("[^a-zA-Z0-9]+")
 	for id := range s {
 		//проверка на допустимые символы
-		re, err := regexp.Compile("[^a-zA-Z0-9]+")
-		if err != nil {
-			return fmt.Errorf("the argument %v could not be checked for the validity of characters", s[id])
-		}
 		res := re.FindAllString(s[id], -1)
 
 		if res != nil {

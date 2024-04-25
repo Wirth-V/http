@@ -221,13 +221,8 @@ func getItems(nameList string, hostPort string) error {
 	}
 	defer resp.Body.Close() // всегда сначало дефери, а потом уже что-то делай
 
-	if resp.StatusCode > Status {
-		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
-	}
-
-	// проверяем код ответа
-	if resp.StatusCode > Status {
-		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("connection problems, response code: %v", resp.StatusCode)
 	}
 
 	// Читаем и конвертируем тело ответа в байты
@@ -260,8 +255,8 @@ func createItem(item Item, hostPort string) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode > Status {
-		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("connection problems, response code: %v", resp.StatusCode)
 	}
 
 	// Читаем и конвертируем тело ответа в байты
@@ -302,8 +297,8 @@ func updateItem(itemID string, updatedItem Item, hostPort string) error {
 	defer resp.Body.Close()
 
 	// проверяем код ответа
-	if resp.StatusCode > Status {
-		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("connection problems, response code: %v", resp.StatusCode)
 	}
 
 	bytesResp, err := io.ReadAll(resp.Body)
@@ -334,8 +329,8 @@ func deleteItem(itemID string, hostPort string) error {
 	}
 
 	// проверяем код ответа
-	if resp.StatusCode > Status {
-		return fmt.Errorf("connection problems, response code:: %v", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("connection problems, response code: %v", resp.StatusCode)
 	}
 
 	bytesResp, err := io.ReadAll(resp.Body)
