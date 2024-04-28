@@ -17,13 +17,12 @@ import (
 var connFerst *pgx.Conn
 var Table string
 
-func Server(req *flag.FlagSet, host string, port string, username_bd string, password_bd string, host_bd string, port_bd string, db string, table string) error {
+func Server(req *flag.FlagSet, host string, port string, connString string, table string) error {
 	if req == nil {
 		return fmt.Errorf("ettempt to pass nil to the 'req' variable")
 
 	}
 
-	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", username_bd, password_bd, host_bd, port_bd, db)
 	fmt.Println(connString)
 	Table = table
 
