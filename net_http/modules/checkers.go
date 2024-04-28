@@ -6,10 +6,13 @@ import (
 	"strings"
 )
 
+var (
+	re = regexp.MustCompile("[^a-zA-Z0-9]+")
+)
+
 func check(s ...string) error {
 	var sb strings.Builder
 	var control int = Zero
-	re := regexp.MustCompile("[^a-zA-Z0-9]+")
 	for id := range s {
 		//проверка на допустимые символы
 		res := re.FindAllString(s[id], -1)
