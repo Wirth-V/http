@@ -24,6 +24,7 @@ func Server(req *flag.FlagSet, host string, port string, username_bd string, pas
 	}
 
 	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", username_bd, password_bd, host_bd, port_bd, db)
+	fmt.Println(connString)
 	Table = table
 
 	// Создание и проверка наличия бд и таблицы, указанных пользователем
