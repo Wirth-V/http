@@ -27,7 +27,6 @@ func Server(req *flag.FlagSet, host string, port string, connString string, tabl
 
 	}
 
-	fmt.Println(connString)
 	Table = table
 
 	// Создание и проверка наличия бд и таблицы, указанных пользователем
@@ -59,9 +58,10 @@ func Server(req *flag.FlagSet, host string, port string, connString string, tabl
 	signal.Notify(shutdownSignal, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-shutdownSignal
-		fmt.Println("\nReceived SIGTERM. Shutting down gracefully...")
+		fmt.Printf("\n")
+		InfoLog.Println("Received SIGTERM. Shutting down gracefully...")
 		if err := connFerst.Close(context.Background()); err != nil {
-			fmt.Printf("Error closing database connection: %v\n", err)
+			ErrorLog.Printf("Error closing database connection: %v\n", err)
 		}
 		os.Exit(0)
 	}()
