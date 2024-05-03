@@ -282,7 +282,7 @@ func updateItem(itemID string, updatedItem Item, hostPort string) error {
 
 	// Создание клиента для отправки PUT-запроса. bytes.NewBuffer(itemJSON)
 	client := &http.Client{}
-	req, err := http.NewRequest("PUT", fmt.Sprintf("http://%s/items/%s/", hostPort, itemID), bytes.NewBuffer(itemJSON))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("http://%s/items/%s/", hostPort, itemID), bytes.NewReader(itemJSON))
 	if err != nil {
 		return fmt.Errorf("error creating a PUT request: %v", err)
 	}
