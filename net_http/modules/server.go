@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -47,12 +47,21 @@ func Server(req *flag.FlagSet, host string, port string, connString string, tabl
 	InfoLog.Println("Server start.")
 	InfoLog.Printf("Host:%s Port:%s", host, port)
 
+	router := http.NewServeMux()
+
+	restServer := &http.Server{
+		Handler:      router,
+		Addr:         fmt.Sprintf("%v:%v", host, port),
+		WriteTimeout: time.Hour * 3,
+		ReadTimeout:  time.Hour * 3,
+	}
+
 	// Регистрация обработчиков запросов для различных путей
-	http.HandleFunc("GET /items/", handleGET)
-	http.HandleFunc("GET /items/{id}/", handleGETid)
-	http.HandleFunc("POST /items/", handlePOST)
-	http.HandleFunc("PUT /items/{id}/", handlePUT)
-	http.HandleFunc("DELETE /items/{id}/", handleDELETE)
+	router.HandleFunc("GET /items/", handleGET)
+	router.HandleFunc("GET /items/{id}/", handleGETid)
+	router.HandleFunc("POST /items/", handlePOST)
+	router.HandleFunc("PUT /items/{id}/", handlePUT)
+	router.HandleFunc("DELETE /items/{id}/", handleDELETE)
 
 	// Обработка сигнала SIGTERM для грациозного завершения сервера
 	signal.Notify(shutdownSignal, os.Interrupt, syscall.SIGTERM)
@@ -61,16 +70,24 @@ func Server(req *flag.FlagSet, host string, port string, connString string, tabl
 		fmt.Printf("\n")
 		InfoLog.Println("Received SIGTERM. Shutting down gracefully...")
 		if err := connFerst.Close(context.Background()); err != nil {
-			ErrorLog.Printf("Error closing database connection: %v\n", err)
+			ErrorLog.Printf("error closing database connection: %v\n", err)
 		}
 		os.Exit(0)
 	}()
 
 	// Запуск веб-сервера
-	err_bd := http.ListenAndServe(strings.Join([]string{host, port}, ":"), nil)
+
+	err_bd := restServer.ListenAndServe()
 	if err_bd != nil {
 		return fmt.Errorf("server startup error: %v", err_bd)
 	}
+
+	/*
+		err = restServer.ListenAndServeTLS("", "")
+		if err != nil {
+			return fmt.Errorf("server startup error: %v", err)
+		}
+	*/
 
 	return nil
 }

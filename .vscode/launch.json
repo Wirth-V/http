@@ -11,7 +11,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "net_http/main.go", 
-            "args": ["start", "--host=localhost", "--port=8080", "--db=us", "--table=it"]
+            "args": ["start", "--host=localhost", "--port=8080", "--table=it"]
         }
     ]
 }
