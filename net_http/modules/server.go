@@ -69,17 +69,22 @@ func Server(req *flag.FlagSet, host string, port string, connString string, tabl
 		<-shutdownSignal
 		fmt.Printf("\n")
 		InfoLog.Println("Received SIGTERM. Shutting down gracefully...")
+
 		if err := connFerst.Close(context.Background()); err != nil {
 			ErrorLog.Printf("error closing database connection: %v\n", err)
 		}
-		os.Exit(0)
+		// грациозной остановки HTTP-сервера. Он позволяет серверу завершить
+		// обработку уже полученных запросов и корректно закрыть все открытые сетевые соединения.
+		if err := restServer.Shutdown(context.Background()); err != nil {
+			ErrorLog.Printf("error shutting down server: %v\n", err)
+		}
 	}()
 
 	// Запуск веб-сервера
 
-	err_bd := restServer.ListenAndServe()
-	if err_bd != nil {
-		return fmt.Errorf("server startup error: %v", err_bd)
+	err = restServer.ListenAndServe()
+	if err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("server startup error: %v", err)
 	}
 
 	/*
