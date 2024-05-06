@@ -7,10 +7,10 @@
 4) `go build`
 
 ## `Запуск сервера:`
-1) По команде `./app start [--host {host_name}] [--port {port_number}] [--pg {data_base_connection_URL}] [--table {table_name}]` поднимется web-сервер доступный по адресу `http://{localhost или host_name}:{8080 или port_number}`. По умолчанию программа обращается/создает БД server с таблицей item. Можно задать свои имена. Если таблица уже есть в системе, то программа будет работать с ней. Если нет, то программа сначало создаст ее.
+1) По команде `./net_httpstart [--host {host_name}] [--port {port_number}] [--pg {data_base_connection_URL}] [--table {table_name}]` поднимется web-сервер доступный по адресу `http://{localhost или host_name}:{8080 или port_number}`. По умолчанию программа обращается/создает БД server с таблицей item. Можно задать свои имена. Если таблица уже есть в системе, то программа будет работать с ней. Если нет, то программа сначало создаст ее.
 
 ## `Запуск клиента:`
-1) По команде `./app request [--host {host_name}] [--port {port_number}] {вложенная_команда}` поднимется клиент обращающийся к адрессу `http://{localhost или host_name}:{8080 или port_number}`.
+1) По команде `./net_http request [--host {host_name}] [--port {port_number}] {вложенная_команда}` поднимется клиент обращающийся к адрессу `http://{localhost или host_name}:{8080 или port_number}`.
 2) Список допустимых вложенных команд:
   - `list` - выполняет запрос GET /items/
   - `get {id}` или `get --id {id}` - выполняет GET /items/{id}
