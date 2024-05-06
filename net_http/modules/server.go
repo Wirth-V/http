@@ -101,11 +101,6 @@ func Server(req *flag.FlagSet, host string, port string, connString string, tabl
 }
 
 func handleGET(w http.ResponseWriter, r *http.Request) {
-	select {
-	case <-r.Context().Done():
-		return
-	default:
-	}
 
 	InfoLog.Println("A GET request was received")
 
@@ -161,11 +156,6 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGETid(w http.ResponseWriter, r *http.Request) {
-	select {
-	case <-r.Context().Done():
-		return
-	default:
-	}
 
 	InfoLog.Println("A GET request was received")
 
@@ -207,11 +197,6 @@ func handleGETid(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePOST(w http.ResponseWriter, r *http.Request) {
-	select {
-	case <-r.Context().Done():
-		return
-	default:
-	}
 
 	InfoLog.Println("A POST request was received")
 
@@ -263,11 +248,6 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePUT(w http.ResponseWriter, r *http.Request) {
-	select {
-	case <-r.Context().Done():
-		return
-	default:
-	}
 
 	InfoLog.Println("A PUT request was received")
 
@@ -337,11 +317,6 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDELETE(w http.ResponseWriter, r *http.Request) {
-	select {
-	case <-r.Context().Done():
-		return
-	default:
-	}
 
 	InfoLog.Println("A DELETE request was received")
 
