@@ -21,6 +21,25 @@ var connFerst *pgx.Conn
 var Table string
 var shutdownSignal = make(chan os.Signal, 1)
 
+func handleInterrupt(restServer *http.Server) {
+	// Обработка сигнала SIGTERM для грациозного завершения сервера
+	signal.Notify(shutdownSignal, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-shutdownSignal
+		fmt.Printf("\n")
+		InfoLog.Println("Received SIGTERM. Shutting down gracefully...")
+
+		if err := connFerst.Close(context.Background()); err != nil {
+			ErrorLog.Printf("error closing database connection: %v\n", err)
+		}
+		// грациозной остановки HTTP-сервера. Он позволяет серверу завершить
+		// обработку уже полученных запросов и корректно закрыть все открытые сетевые соединения.
+		if err := restServer.Shutdown(context.Background()); err != nil {
+			ErrorLog.Printf("error shutting down server: %v\n", err)
+		}
+	}()
+}
+
 func Server(req *flag.FlagSet, host string, port string, connString string, table string) error {
 	if req == nil {
 		return fmt.Errorf("ettempt to pass nil to the 'req' variable")
@@ -63,25 +82,9 @@ func Server(req *flag.FlagSet, host string, port string, connString string, tabl
 	router.HandleFunc("PUT /items/{id}/", handlePUT)
 	router.HandleFunc("DELETE /items/{id}/", handleDELETE)
 
-	// Обработка сигнала SIGTERM для грациозного завершения сервера
-	signal.Notify(shutdownSignal, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-shutdownSignal
-		fmt.Printf("\n")
-		InfoLog.Println("Received SIGTERM. Shutting down gracefully...")
-
-		if err := connFerst.Close(context.Background()); err != nil {
-			ErrorLog.Printf("error closing database connection: %v\n", err)
-		}
-		// грациозной остановки HTTP-сервера. Он позволяет серверу завершить
-		// обработку уже полученных запросов и корректно закрыть все открытые сетевые соединения.
-		if err := restServer.Shutdown(context.Background()); err != nil {
-			ErrorLog.Printf("error shutting down server: %v\n", err)
-		}
-	}()
+	handleInterrupt(restServer)
 
 	// Запуск веб-сервера
-
 	err = restServer.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		return fmt.Errorf("server startup error: %v", err)
