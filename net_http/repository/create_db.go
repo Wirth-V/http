@@ -2,13 +2,12 @@ package repository
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/jackc/pgx/v5"
 )
 
 // Проверяет наличие бд, если его нет, то создет нужное бд и таблицу
-func Db_control(connString string, Table string) error {
+func Control(connString string, Table string) error {
 	//разбора строки, возвращает структуру
 	connConfig, err := pgx.ParseConfig(connString)
 	if err != nil {
@@ -69,32 +68,32 @@ func Db_control(connString string, Table string) error {
 	return nil
 }
 
-func DbHandleGET(tx pgx.Tx, r *http.Request, Table string) (pgx.Rows, error) {
-	rows, err := tx.Query(r.Context(), "SELECT * FROM "+Table)
+func HandleGET(tx pgx.Tx, ctx context.Context, Table string) (pgx.Rows, error) {
+	rows, err := tx.Query(ctx, "SELECT * FROM "+Table)
 	return rows, err
 }
 
-func DbHandleGETid(tx pgx.Tx, r *http.Request, Table string, itemID string, name *string) error {
-	err := tx.QueryRow(r.Context(), "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(name)
+func HandleGETid(tx pgx.Tx, ctx context.Context, Table string, itemID string, name *string) error {
+	err := tx.QueryRow(ctx, "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(name)
 	return err
 }
 
-func DbHandlePOST(tx pgx.Tx, r *http.Request, Table string, ID string, Name string) error {
-	_, err := tx.Exec(r.Context(), "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", ID, Name)
+func HandlePOST(tx pgx.Tx, ctx context.Context, Table string, ID string, Name string) error {
+	_, err := tx.Exec(ctx, "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", ID, Name)
 	return err
 }
 
-func DbСheck(tx pgx.Tx, r *http.Request, Table string, itemID string, count *int) error {
-	err := tx.QueryRow(r.Context(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(count)
+func Сheck(tx pgx.Tx, ctx context.Context, Table string, itemID string, count *int) error {
+	err := tx.QueryRow(ctx, "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(count)
 	return err
 }
 
-func DbHandlePUT(tx pgx.Tx, r *http.Request, Table string, Name string, ID string) error {
-	_, err := tx.Exec(r.Context(), "UPDATE "+Table+" SET name = $1 WHERE id = $2", Name, ID)
+func HandlePUT(tx pgx.Tx, ctx context.Context, Table string, Name string, ID string) error {
+	_, err := tx.Exec(ctx, "UPDATE "+Table+" SET name = $1 WHERE id = $2", Name, ID)
 	return err
 }
 
-func DbHandleDELETE(tx pgx.Tx, r *http.Request, Table string, itemID string) error {
-	_, err := tx.Exec(r.Context(), "DELETE FROM "+Table+" WHERE id = $1", itemID)
+func HandleDELETE(tx pgx.Tx, ctx context.Context, Table string, itemID string) error {
+	_, err := tx.Exec(ctx, "DELETE FROM "+Table+" WHERE id = $1", itemID)
 	return err
 }

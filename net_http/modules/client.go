@@ -38,6 +38,62 @@ func Client(req *flag.FlagSet, host string, port string) error {
 			return err
 		}
 
+	/*
+		case "get_from_db":
+			list := flag.NewFlagSet("list", flag.ExitOnError)
+			nameList := list.String("id", "", "ID")
+
+			list.Parse(req.Args()[One:])
+
+			//Определяет поведение кода, когда вместо флага команды `-id {id}`
+			//вводится аргумент команды `{id}` без флага
+			if *nameList == "" {
+
+				if list.Args() != nil {
+
+					//ничего не ввили
+					if list.Arg(Zero) == "" {
+						return fmt.Errorf("you flag is not correct: the flag was not entered")
+
+					}
+
+					//ввели что-то лишнее
+					if list.Arg(One) != "" {
+						return fmt.Errorf("you flag is not correct: an extra flag was introduced")
+
+					}
+
+					*nameList = list.Arg(Zero)
+				} else {
+					return fmt.Errorf("you flag is not correct")
+				}
+
+			}
+
+			err := check(*nameList)
+			if err != nil {
+				return err
+			}
+
+
+			//	InfoLog.Println("GET request:")
+			//	err = getItems(*nameList, hostPort)
+			//	if err != nil {
+			//		return err
+			//	}
+
+
+			// Установка соединения с базой данных
+			connFerst, err = pgx.Connect(context.Background(), connString)
+			if err != nil {
+				return fmt.Errorf("unable to connect to database, %v", err)
+
+			}
+			defer connFerst.Close(context.Background())
+
+
+	*/
+
 	case "get":
 		list := flag.NewFlagSet("list", flag.ExitOnError)
 		nameList := list.String("id", "", "ID")
