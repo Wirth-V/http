@@ -108,10 +108,11 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 	defer tx.Rollback(r.Context())
 
 	// Запрос данных из таблицы
-	rows, err := repository.HandleGET(tx, r.Context(), Table)
+	rows, err := tx.Query(r.Context(), "SELECT * FROM "+Table)
 	if err != nil {
 		ErrorLog.Println("eror querying database for GET request,", err)
 		http.Error(w, "error querying database", http.StatusInternalServerError)
+		return
 
 	}
 	defer rows.Close()
@@ -120,7 +121,7 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 	var id string
 	var name string
 
-	// Итерация по результатам запроса и добавление данных в массив items
+	// Итерация по результатам запроса и добавление данных в  срез items
 	for rows.Next() {
 		err := rows.Scan(&id, &name)
 		if err != nil {
@@ -167,7 +168,7 @@ func handleGETid(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(r.Context())
 
-	err = repository.HandleGETid(tx, r.Context(), Table, itemID, &name)
+	err = tx.QueryRow(r.Context(), "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(name)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			http.NotFound(w, r)
@@ -223,7 +224,7 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 	// Генерация уникального ID и добавление нового элемента в карту.
 	newItem.ID = GenerateID()
 
-	err = repository.HandlePOST(tx, r.Context(), Table, newItem.ID, newItem.Name)
+	_, err = tx.Exec(r.Context(), "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
 	if err != nil {
 		ErrorLog.Println("error executing query,", err)
 		http.Error(w, "error executing query", http.StatusInternalServerError)
@@ -278,7 +279,7 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 
 	// Проверка существования элемента в базе данных
 	var count int
-	err = repository.Сheck(tx, r.Context(), Table, itemID, &count)
+	err = tx.QueryRow(r.Context(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
 	if err != nil {
 		ErrorLog.Println("error querying database:", err)
 		http.Error(w, "error querying database", http.StatusInternalServerError)
@@ -291,7 +292,7 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Обновление данных элемента в базе данных
-	err = repository.HandlePUT(tx, r.Context(), Table, updatedItem.Name, itemID)
+	_, err = tx.Exec(r.Context(), "UPDATE "+Table+" SET name = $1 WHERE id = $2", updatedItem.Name, itemID)
 	if err != nil {
 		ErrorLog.Println("error executing query:", err)
 		http.Error(w, "error executing query", http.StatusInternalServerError)
@@ -335,7 +336,7 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(r.Context())
 
-	err = repository.Сheck(tx, r.Context(), Table, itemID, &count)
+	err = tx.QueryRow(r.Context(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
 	if err != nil {
 		ErrorLog.Println("error querying database: ", err)
 		http.Error(w, "error querying database", http.StatusInternalServerError)
@@ -348,7 +349,7 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Удаление элемента из базы данных
-	err = repository.HandleDELETE(tx, r.Context(), Table, itemID)
+	_, err = tx.Exec(r.Context(), "DELETE FROM "+Table+" WHERE id = $1", itemID)
 	if err != nil {
 		ErrorLog.Println("error executing query:", err)
 		http.Error(w, "error executing query", http.StatusInternalServerError)

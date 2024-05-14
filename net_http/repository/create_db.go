@@ -67,33 +67,3 @@ func Control(connString string, Table string) error {
 
 	return nil
 }
-
-func HandleGET(tx pgx.Tx, ctx context.Context, Table string) (pgx.Rows, error) {
-	rows, err := tx.Query(ctx, "SELECT * FROM "+Table)
-	return rows, err
-}
-
-func HandleGETid(tx pgx.Tx, ctx context.Context, Table string, itemID string, name *string) error {
-	err := tx.QueryRow(ctx, "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(name)
-	return err
-}
-
-func HandlePOST(tx pgx.Tx, ctx context.Context, Table string, ID string, Name string) error {
-	_, err := tx.Exec(ctx, "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", ID, Name)
-	return err
-}
-
-func Сheck(tx pgx.Tx, ctx context.Context, Table string, itemID string, count *int) error {
-	err := tx.QueryRow(ctx, "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(count)
-	return err
-}
-
-func HandlePUT(tx pgx.Tx, ctx context.Context, Table string, Name string, ID string) error {
-	_, err := tx.Exec(ctx, "UPDATE "+Table+" SET name = $1 WHERE id = $2", Name, ID)
-	return err
-}
-
-func HandleDELETE(tx pgx.Tx, ctx context.Context, Table string, itemID string) error {
-	_, err := tx.Exec(ctx, "DELETE FROM "+Table+" WHERE id = $1", itemID)
-	return err
-}
