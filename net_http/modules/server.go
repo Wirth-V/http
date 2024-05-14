@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net_http/repository"
 	"os"
 	"os/signal"
 	"syscall"
@@ -50,7 +49,7 @@ func Server(req *flag.FlagSet, host string, port string, connString string, tabl
 	Table = table
 
 	// Создание и проверка наличия бд и таблицы, указанных пользователем
-	err := repository.Control(connString, Table)
+	err := Control(connString)
 	if err != nil {
 		return fmt.Errorf("error checking database existence, %v", err)
 
@@ -98,51 +97,11 @@ func handleGET(w http.ResponseWriter, r *http.Request) {
 
 	InfoLog.Println("A GET request was received")
 
-	// Начало транзакции
-	tx, err := connFerst.BeginTx(r.Context(), pgx.TxOptions{})
+	items, err := GetItem(r.Context())
+
 	if err != nil {
-		ErrorLog.Println("error beginning transaction:", err)
-		http.Error(w, "error beginning transaction", http.StatusInternalServerError)
-		return
-	}
-	defer tx.Rollback(r.Context())
-
-	// Запрос данных из таблицы
-	rows, err := tx.Query(r.Context(), "SELECT * FROM "+Table)
-	if err != nil {
-		ErrorLog.Println("eror querying database for GET request,", err)
-		http.Error(w, "error querying database", http.StatusInternalServerError)
-		return
-
-	}
-	defer rows.Close()
-
-	var items []*Item
-	var id string
-	var name string
-
-	// Итерация по результатам запроса и добавление данных в  срез items
-	for rows.Next() {
-		err := rows.Scan(&id, &name)
-		if err != nil {
-			ErrorLog.Println("error scanning row:", err)
-			http.Error(w, "error scanning row", http.StatusInternalServerError)
-			return
-		}
-		items = append(items, &Item{ID: id, Name: name})
-	}
-
-	// Обеспечивает нужный формат возврата данных для пустой таблице
-	// (Делает так, что бы вернулся не `nil`, а `{"id":"", "name":""} `)
-	if items == nil {
-		items = append(items, &Item{ID: "", Name: ""})
-	}
-
-	// Коммит транзакции
-	err = tx.Commit(r.Context())
-	if err != nil {
-		ErrorLog.Println("error committing transaction:", err)
-		http.Error(w, "error committing transaction", http.StatusInternalServerError)
+		ErrorLog.Println("error in GET request:", err)
+		http.Error(w, "error", http.StatusInternalServerError)
 		return
 	}
 
@@ -157,18 +116,8 @@ func handleGETid(w http.ResponseWriter, r *http.Request) {
 	itemID := r.PathValue("id")
 
 	// Запрос данных из таблицы по ID
-	var name string
+	items, err := GetItemId(r.Context(), itemID)
 
-	// Начало транзакции
-	tx, err := connFerst.BeginTx(r.Context(), pgx.TxOptions{})
-	if err != nil {
-		ErrorLog.Println("error beginning transaction:", err)
-		http.Error(w, "error beginning transaction", http.StatusInternalServerError)
-		return
-	}
-	defer tx.Rollback(r.Context())
-
-	err = tx.QueryRow(r.Context(), "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(name)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			http.NotFound(w, r)
@@ -179,15 +128,7 @@ func handleGETid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Коммит транзакции
-	err = tx.Commit(r.Context())
-	if err != nil {
-		ErrorLog.Println("error committing transaction:", err)
-		http.Error(w, "error committing transaction", http.StatusInternalServerError)
-		return
-	}
-
-	sendJSONResponse(w, &Item{ID: itemID, Name: name})
+	sendJSONResponse(w, items)
 
 }
 
@@ -213,29 +154,11 @@ func handlePOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := connFerst.BeginTx(r.Context(), pgx.TxOptions{})
-	if err != nil {
-		ErrorLog.Println("error beginning transaction:", err)
-		http.Error(w, "error beginning transaction", http.StatusInternalServerError)
-		return
-	}
-	defer tx.Rollback(r.Context())
+	err = PostItem(r.Context(), &newItem)
 
-	// Генерация уникального ID и добавление нового элемента в карту.
-	newItem.ID = GenerateID()
-
-	_, err = tx.Exec(r.Context(), "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
 	if err != nil {
-		ErrorLog.Println("error executing query,", err)
-		http.Error(w, "error executing query", http.StatusInternalServerError)
-		return
-	}
-
-	// Коммит транзакции
-	err = tx.Commit(r.Context())
-	if err != nil {
-		ErrorLog.Println("error committing transaction:", err)
-		http.Error(w, "error committing transaction", http.StatusInternalServerError)
+		ErrorLog.Println("error in POST request,", err)
+		http.Error(w, "error", http.StatusInternalServerError)
 		return
 	}
 
@@ -268,42 +191,17 @@ func handlePUT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Начало транзакции
-	tx, err := connFerst.BeginTx(r.Context(), pgx.TxOptions{})
-	if err != nil {
-		ErrorLog.Println("error beginning transaction:", err)
-		http.Error(w, "error beginning transaction", http.StatusInternalServerError)
-		return
-	}
-	defer tx.Rollback(r.Context())
+	var contol bool
+	err, contol = PutItem(r.Context(), &updatedItem, itemID)
 
-	// Проверка существования элемента в базе данных
-	var count int
-	err = tx.QueryRow(r.Context(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
-	if err != nil {
-		ErrorLog.Println("error querying database:", err)
-		http.Error(w, "error querying database", http.StatusInternalServerError)
-		return
-	}
-
-	if count == Zero {
+	if contol {
 		http.NotFound(w, r)
 		return
 	}
 
-	// Обновление данных элемента в базе данных
-	_, err = tx.Exec(r.Context(), "UPDATE "+Table+" SET name = $1 WHERE id = $2", updatedItem.Name, itemID)
 	if err != nil {
-		ErrorLog.Println("error executing query:", err)
-		http.Error(w, "error executing query", http.StatusInternalServerError)
-		return
-	}
-
-	// Коммит транзакции
-	err = tx.Commit(r.Context())
-	if err != nil {
-		ErrorLog.Println("error committing transaction:", err)
-		http.Error(w, "error committing transaction", http.StatusInternalServerError)
+		ErrorLog.Println("error in PUT request:", err)
+		http.Error(w, "error", http.StatusInternalServerError)
 		return
 	}
 
@@ -324,46 +222,19 @@ func handleDELETE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Проверка существования элемента в базе данных
-	var count int
+	var contol bool
+	err, contol = DeleteItem(r.Context(), itemID)
 
-	// Начало транзакции
-	tx, err := connFerst.BeginTx(r.Context(), pgx.TxOptions{})
-	if err != nil {
-		ErrorLog.Println("error beginning transaction:", err)
-		http.Error(w, "error beginning transaction", http.StatusInternalServerError)
-		return
-	}
-	defer tx.Rollback(r.Context())
-
-	err = tx.QueryRow(r.Context(), "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
-	if err != nil {
-		ErrorLog.Println("error querying database: ", err)
-		http.Error(w, "error querying database", http.StatusInternalServerError)
-		return
-	}
-
-	if count == Zero {
+	if contol {
 		http.NotFound(w, r)
 		return
 	}
 
-	// Удаление элемента из базы данных
-	_, err = tx.Exec(r.Context(), "DELETE FROM "+Table+" WHERE id = $1", itemID)
 	if err != nil {
-		ErrorLog.Println("error executing query:", err)
-		http.Error(w, "error executing query", http.StatusInternalServerError)
+		ErrorLog.Println("error in PUT request:", err)
+		http.Error(w, "error", http.StatusInternalServerError)
 		return
 	}
-
-	// Коммит транзакции
-	err = tx.Commit(r.Context())
-	if err != nil {
-		ErrorLog.Println("error committing transaction:", err)
-		http.Error(w, "error committing transaction", http.StatusInternalServerError)
-		return
-	}
-
 }
 
 // sendJSONResponse - устанавливает заголовки ответа и кодирует данные в формате JSON для отправки.

@@ -2,16 +2,12 @@ package modules
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 
 	"github.com/jackc/pgx/v5"
 )
 
-var conn *pgx.Conn
-
 // Проверяет наличие бд, если его нет, то создет нужное бд и таблицу
-func Control(connString string, Table string) error {
+func Control(connString string) error {
 	//разбора строки, возвращает структуру
 	connConfig, err := pgx.ParseConfig(connString)
 	if err != nil {
@@ -72,32 +68,34 @@ func Control(connString string, Table string) error {
 	return nil
 }
 
-func HandleGET(ctx context.Context, Table string, w http.ResponseWriter) ([]*Item, error) {
+func GetItem(ctx context.Context) ([]*Item, error) {
 
-	var items []*Item
-	var id string
-	var name string
+	InfoLog.Println("A GET request was received")
 
 	// Начало транзакции
-	tx, err := conn.BeginTx(ctx, pgx.TxOptions{})
+	tx, err := connFerst.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return items, fmt.Errorf("error in transaction: %v", err)
+		return nil, err
 	}
 	defer tx.Rollback(ctx)
 
 	// Запрос данных из таблицы
 	rows, err := tx.Query(ctx, "SELECT * FROM "+Table)
 	if err != nil {
-		return items, fmt.Errorf("eror querying database for GET request, %v", err)
+		return nil, err
 
 	}
 	defer rows.Close()
 
-	// Итерация по результатам запроса и добавление данных в массив items
+	var items []*Item
+	var id string
+	var name string
+
+	// Итерация по результатам запроса и добавление данных в  срез items
 	for rows.Next() {
 		err := rows.Scan(&id, &name)
 		if err != nil {
-			return items, fmt.Errorf("error scanning row: %v", err)
+			return nil, err
 		}
 		items = append(items, &Item{ID: id, Name: name})
 	}
@@ -111,36 +109,126 @@ func HandleGET(ctx context.Context, Table string, w http.ResponseWriter) ([]*Ite
 	// Коммит транзакции
 	err = tx.Commit(ctx)
 	if err != nil {
-		return items, fmt.Errorf("error committing transaction: %v", err)
+		return nil, err
 	}
 
-	// Возвращаем список всех элементов.
-	sendJSONResponse(w, items)
-
-	return items, err
+	return items, nil
 }
 
-func HandleGETid(ctx context.Context, Table string, itemID string, name *string) error {
-	err := conn.QueryRow(ctx, "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(name)
-	return err
+func GetItemId(ctx context.Context, itemID string) (*Item, error) {
+	// Запрос данных из таблицы по ID
+	var name string
+
+	// Начало транзакции
+	tx, err := connFerst.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	err = tx.QueryRow(ctx, "SELECT name FROM "+Table+" WHERE id = $1", itemID).Scan(&name)
+	if err != nil {
+		return nil, err
+	}
+
+	// Коммит транзакции
+	err = tx.Commit(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Item{ID: itemID, Name: name}, nil
 }
 
-func HandlePOST(ctx context.Context, Table string, ID string, Name string) error {
-	_, err := conn.Exec(ctx, "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", ID, Name)
-	return err
+func PostItem(ctx context.Context, newItem *Item) error {
+
+	tx, err := connFerst.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	// Генерация уникального ID и добавление нового элемента в карту.
+	newItem.ID = GenerateID()
+
+	_, err = tx.Exec(ctx, "INSERT INTO "+Table+" (id, name) VALUES ($1, $2)", newItem.ID, newItem.Name)
+	if err != nil {
+		return err
+	}
+
+	// Коммит транзакции
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func Сheck(ctx context.Context, Table string, itemID string, count *int) error {
-	err := conn.QueryRow(ctx, "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(count)
-	return err
+func PutItem(ctx context.Context, updatedItem *Item, itemID string) (error, bool) {
+	// Начало транзакции
+	tx, err := connFerst.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err, false
+	}
+	defer tx.Rollback(ctx)
+
+	// Проверка существования элемента в базе данных
+	var count int
+	err = tx.QueryRow(ctx, "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
+	if err != nil {
+		return err, false
+	}
+
+	if count == Zero {
+		return nil, true
+	}
+
+	// Обновление данных элемента в базе данных
+	_, err = tx.Exec(ctx, "UPDATE "+Table+" SET name = $1 WHERE id = $2", updatedItem.Name, itemID)
+	if err != nil {
+		return err, false
+	}
+
+	// Коммит транзакции
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err, false
+	}
+
+	return nil, false
 }
 
-func HandlePUT(ctx context.Context, Table string, Name string, ID string) error {
-	_, err := conn.Exec(ctx, "UPDATE "+Table+" SET name = $1 WHERE id = $2", Name, ID)
-	return err
-}
+func DeleteItem(ctx context.Context, itemID string) (error, bool) {
+	// Проверка существования элемента в базе данных
+	var count int
 
-func HandleDELETE(ctx context.Context, Table string, itemID string) error {
-	_, err := conn.Exec(ctx, "DELETE FROM "+Table+" WHERE id = $1", itemID)
-	return err
+	// Начало транзакции
+	tx, err := connFerst.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err, false
+	}
+	defer tx.Rollback(ctx)
+
+	err = tx.QueryRow(ctx, "SELECT COUNT(*) FROM "+Table+" WHERE id = $1", itemID).Scan(&count)
+	if err != nil {
+		return err, false
+	}
+
+	if count == Zero {
+		return nil, true
+	}
+
+	// Удаление элемента из базы данных
+	_, err = tx.Exec(ctx, "DELETE FROM "+Table+" WHERE id = $1", itemID)
+	if err != nil {
+		return err, false
+	}
+
+	// Коммит транзакции
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err, false
+	}
+	return nil, false
 }
